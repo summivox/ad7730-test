@@ -24,7 +24,7 @@ static const U32 min_period_Tclk = 300; //min period (in ticks) <=> max pulse fr
 ////////////
 // machine-specific
 
-static const int Lmm_Lpulse = 1000;
+static const int Lmm_Lpulse = 512;
 
 static const float V_feed_start = 5;
 static const float V_feed_max   = 50;
