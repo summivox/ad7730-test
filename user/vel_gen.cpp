@@ -9,7 +9,7 @@ using namespace std;
 
 //generate linear velocity curve `v1` -> `vm` -> `v3` with path length `s`
 //return value: `n` < `n_max`
-//`ret[0, n)`: path length curve, sampled at integer `(Tstep/Tclk)`
+//`ret[0, n)`: path length curve, sampled at integer time steps
 int vel_gen(float a, float vm, float v1, float v3, float s, float* ret, int n_max) {
     //validity
     //assert(a  >  0);
@@ -44,22 +44,22 @@ int vel_gen(float a, float vm, float v1, float v3, float s, float* ret, int n_ma
     //attack(1), sustain(2), release(3); all aligned to time step
     float dt1 = (vm - v1)/a; //attack/release time
     float dt3 = (vm - v3)/a;
-    int n1 = floor(dt1/(Tstep/Tclk)); //err on shorter accel time
-    int n3 = floor(dt3/(Tstep/Tclk));
-    float dt1i = n1*(Tstep/Tclk); //aligned attack/release time
-    float dt3i = n3*(Tstep/Tclk);
+    int n1 = floor(CONV(dt1, Ts, Tstep)); //err on shorter accel time
+    int n3 = floor(CONV(dt3, Ts, Tstep));
+    float dt1i = CONV(float(n1), Tstep, Ts); //aligned attack/release time
+    float dt3i = CONV(float(n3), Tstep, Ts);
     float s1 = (v1 + half_a*dt1i)*dt1i; //length of attack/release
     float s3 = (v3 + half_a*dt3i)*dt3i;
     float s2 = s - s1 - s3; //length of sustain
     float dt2 = s2/vm;
-    int n2 = ceil(dt2/(Tstep/Tclk)); //err on slower speed (than max)
+    int n2 = ceil(CONV(dt2, Ts, Tstep)); //err on slower speed (than max)
 
     //check for overrun
     if (n1 + n2 + n3 > n_max) return 0;
 
     //generate attack [n1]
     for (int i = 1 ; i <= n1 ; ++i) {
-        float t = i*(Tstep/Tclk);
+        float t = CONV(float(i), Tstep, Ts);
         *ret++ = (v1 + half_a*t)*t;
     }
     //generate sustain [n2 - 1]
@@ -69,7 +69,7 @@ int vel_gen(float a, float vm, float v1, float v3, float s, float* ret, int n_ma
     }
     //generate release [n3]
     for (int i = n3 ; i >= 1 ; --i) {
-        float t = i*(Tstep/Tclk);
+        float t = CONV(float(i), Tstep, Ts);
         *ret++ = s - (v3 + half_a*t)*t;
     }
     *ret++ = s;
