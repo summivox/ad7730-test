@@ -8,6 +8,11 @@ using namespace std;
 #include "misc.hpp"
 
 #include "drive.hpp"
+#include "vel_gen.hpp"
+
+
+static const int n_max = 10000;
+float s[n_max];
 
 __task void main_task(){
 
@@ -17,15 +22,26 @@ __task void main_task(){
         "\r\n",
         __DATE__, __TIME__
     );
-    
+
     drive_start();
 
     os_dly_wait(100);
 
-    drive_push(2, 10, 10);
-    drive_push(4, 10, -10);
-    drive_push(2, -10, -10);
-    drive_push(4, -10, 10);
+    int n = vel_gen(Acc_line_max, V_feed_max, V_feed_start, V_feed_start, 50, s, n_max);
+    printf("### points generated: %d\r\n", n);
+
+    float xvec = arm_cos_f32(CONV(30, Adeg, Arad));
+    float yvec = arm_sin_f32(CONV(30, Adeg, Arad));
+    int xlast = 0, ylast = 0;
+    for (int i = 0 ; i < n ; ++i) {
+        float d = s[i]*Lmm_Lpulse;
+        int x = floor(xvec*d);
+        int y = floor(yvec*d);
+        drive_push(1, x - xlast, y - ylast);
+        xlast = x;
+        ylast = y;
+        //printf("\t%5d, %5d\r\n", x, y);
+    }
 
     printf("### done\r\n");
 
