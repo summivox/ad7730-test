@@ -110,13 +110,29 @@ void Axis::update() {
     }
 }
 
-
 static Axis axis[N_axis_count] = {
     {TIM2, TIM2_IRQn},
     {TIM3, TIM3_IRQn},
     //{TIM4, TIM4_IRQn},
     //{TIM8, TIM8_CC_IRQn}
 };
+
+void TIM2_IRQHandler() {
+    axis[0].update();
+    TIM2->SR = ~TIM_SR_CC1IF;
+}
+void TIM3_IRQHandler() {
+    axis[1].update();
+    TIM3->SR = ~TIM_SR_CC1IF;
+}
+/*void TIM4_IRQHandler(){
+    axis[2].update();
+    TIM4->SR = ~TIM_SR_CC1IF;
+}
+void TIM8_CC_IRQHandler(){
+    axis[3].update();
+    TIM8->SR = ~TIM_SR_CC1IF;
+}*/
 
 
 //when command FIFO gets empty, generate "idle" commands(dAp[]==0) instead
@@ -175,6 +191,21 @@ void preload(DriveCmd *cmd) {
         }
     }
 }
+
+void TIM1_UP_IRQHandler() {
+    TIM1->ARR = preloaded->dThms * 2 - 1;
+
+    //preload next command in FIFO
+    DriveCmd *cmd;
+    if (isr_mbx_receive(drive_cmd_mbx, (void**)&cmd)!=OS_R_MBX) {
+        //no command in FIFO, preload idle command instead
+        cmd = &cmd_idle;
+    }
+    preload(cmd);
+
+    TIM1->SR = ~TIM_SR_UIF;
+}
+
 
 void drive_init() {
     //Reset all timers
@@ -277,34 +308,20 @@ void drive_stop() {
     __enable_irq();
 }
 
+bool drive_push(U32 dt, I32 dx, I32 dy, U16 timeout) {
+    //allocate
+    DriveCmd* cmd = drive_cmd_pool.allocate();
+    if (cmd == NULL) return false;
 
-void TIM1_UP_IRQHandler() {
-    TIM1->ARR = preloaded->dThms * 2 - 1;
+    //fill
+    cmd->dThms = dt;
+    cmd->dAp[0] = dx;
+    cmd->dAp[1] = dy;
 
-    //preload next command in FIFO
-    DriveCmd *cmd;
-    if (isr_mbx_receive(drive_cmd_mbx, (void**)&cmd)!=OS_R_MBX) {
-        //no command in FIFO, preload idle command instead
-        cmd = &cmd_idle;
-    }
-    preload(cmd);
+    //send
+    if (os_mbx_send(drive_cmd_mbx, cmd, timeout) == OS_R_OK) return true;
 
-    TIM1->SR = ~TIM_SR_UIF;
+    //if timeout: cleanup
+    drive_cmd_pool.deallocate(cmd);
+    return false;
 }
-
-void TIM2_IRQHandler() {
-    axis[0].update();
-    TIM2->SR = ~TIM_SR_CC1IF;
-}
-void TIM3_IRQHandler() {
-    axis[1].update();
-    TIM3->SR = ~TIM_SR_CC1IF;
-}
-/*void TIM4_IRQHandler(){
-    axis[2].update();
-    TIM4->SR = ~TIM_SR_CC1IF;
-}
-void TIM8_CC_IRQHandler(){
-    axis[3].update();
-    TIM8->SR = ~TIM_SR_CC1IF;
-}*/
