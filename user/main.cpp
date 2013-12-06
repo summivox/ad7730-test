@@ -2,8 +2,6 @@
 #pragma hdrstop
 using namespace std;
 
-#include "rtl.h"
-
 #include "conf.hpp"
 #include "misc.hpp"
 
