@@ -46,8 +46,8 @@ static const units_len Lm = 1000 * Lmm;
 
 typedef float units_angle;
 
-static const units_angle Adeg = 360.0;
-static const units_angle Arad = 2*PI;
+static const units_angle Arad = 1.0;
+static const units_angle Adeg = PI/180.0;
 
 
 #endif//_UNITS_HPP_
