@@ -1,4 +1,3 @@
-//drive
 #include "stdafx.h"
 #pragma hdrstop
 using namespace std;
@@ -36,18 +35,18 @@ struct Axis {
     struct Data {
         dir_t dir;
 
-        //timer reload(period) == dTk/dAp - 1
+        //timer reload(period) == dTclk/dNpulse - 1
         //plus == ceil, minus == floor
-        U16 Tk_period_plus;
-        U16 Tk_period_minus;
-        I32 Ap_total; //==dAp
-        I32 Ap_rem; //countdown from dAp
+        U16 period_plus_Tclk;
+        U16 period_minus_Tclk;
+        I32 total_Npulse; //==dNpulse
+        I32 rem_Npulse; //countdown from dNpulse
 
         //leap pulse generation:
-        //  l==kplus*dAp-dTk (constant)
-        //  s==(n*l)%dAp (updated and compared each pulse)
-        I32 Ap_l;
-        I32 Ap_s;
+        //  l==kplus*dNpulse-dTclk (constant)
+        //  s==(n*l)%dNpulse (updated and compared each pulse)
+        I32 l_Npulse;
+        I32 s_Npulse;
     } data[2];
     Data * volatile data_curr;
     Data * volatile data_next;
@@ -84,28 +83,28 @@ void Axis::init() {
 //NOTE: critical
 void Axis::update() {
     Data* D=data_curr;
-    if (--D->Ap_rem != 0) {
-        D->Ap_s += D->Ap_l;
-        if (D->Ap_s >= D->Ap_total) {
-            D->Ap_s -= D->Ap_total;
-            TIMX->ARR = D->Tk_period_minus;
+    if (--D->rem_Npulse != 0) {
+        D->s_Npulse += D->l_Npulse;
+        if (D->s_Npulse >= D->total_Npulse) {
+            D->s_Npulse -= D->total_Npulse;
+            TIMX->ARR = D->period_minus_Tclk;
         } else {
-            TIMX->ARR = D->Tk_period_plus;
+            TIMX->ARR = D->period_plus_Tclk;
         }
     } else {
         swap(data_curr, data_next);
         D=data_curr;
 
-        TIMX->ARR = D->Tk_period_minus;
+        TIMX->ARR = D->period_minus_Tclk;
         TIMX->CCMR1 = D->dir;
-        assert(D->Ap_total == D->Ap_rem);
+        assert(D->total_Npulse == D->rem_Npulse);
 
-        //special case: prevent dAp==1 from screwing up ISR timing by
+        //special case: prevent dNpulse==1 from screwing up ISR timing by
         //delaying CC, allowing TIM1 to finish before TIMX CC.
-        if (D->Ap_total == 1) {
-            TIMX->CCR1 = D->Tk_period_minus/2;
+        if (D->total_Npulse == 1) {
+            TIMX->CCR1 = D->period_minus_Tclk/2;
         } else {
-            TIMX->CCR1 = Tk_min_pulse_width;
+            TIMX->CCR1 = min_pulse_width_Tclk;
         }
     }
 }
@@ -135,7 +134,7 @@ void TIM8_CC_IRQHandler(){
 }*/
 
 
-//when command FIFO gets empty, generate "idle" commands(dAp[]==0) instead
+//when command FIFO gets empty, generate "idle" commands(dNpulse[]==0) instead
 static DriveCmd cmd_idle = {1, {0}};
 
 Pool<DriveCmd, N_drive_cmd_max+5> drive_cmd_pool;
@@ -152,48 +151,48 @@ void preload(DriveCmd *cmd) {
     free_preloaded();
     preloaded = cmd;
 
-    I32 dTk = preloaded->dThms * Thms_in_Tk;
-    assert(dTk > 0);
+    I32 dTclk = CONV(preloaded->dTstep, Tstep, Tclk);
+    assert(dTclk > 0);
 
     FOR_EACH_AXIS(N_axis) {
         Axis& A = axis[N_axis];
         Axis::Data* D = A.data_next;
 
-        I32 dAp = preloaded->dAp[N_axis];
-        if (dAp != 0) {
-            if (dAp < 0) {
+        I32 dNpulse = preloaded->dNpulse[N_axis];
+        if (dNpulse != 0) {
+            if (dNpulse < 0) {
+                dNpulse = -dNpulse;
                 D->dir = Axis::MINUS;
-                dAp = -dAp;
-            } else { //dAp>0
+            } else { //dNpulse>0
                 D->dir = Axis::PLUS;
             }
 
-            I32 kplus = (dTk - 1) / dAp + 1;
-            I32 kminus = dTk / dAp;
-            I32 l = kplus * dAp - dTk;
+            I32 kplus = (dTclk - 1) / dNpulse + 1;
+            I32 kminus = dTclk / dNpulse;
+            I32 l = kplus * dNpulse - dTclk;
 
-            assert(kminus >= Tk_min_period);
-            assert(kplus <= Thms_in_Tk);
+            assert(kminus >= min_period_Tclk);
+            assert(kplus <= Tstep/Tclk);
 
-            D->Tk_period_plus = kplus - 1;   //ceil(dTk/dAp) - 1
-            D->Tk_period_minus = kminus - 1; //floor(dTk/dAp) - 1
-            D->Ap_total = D->Ap_rem = dAp;
-            D->Ap_l = l;
-            D->Ap_s = 0;
+            D->period_plus_Tclk = kplus - 1;   //ceil(dTclk/dNpulse) - 1
+            D->period_minus_Tclk = kminus - 1; //floor(dTclk/dNpulse) - 1
+            D->total_Npulse = D->rem_Npulse = dNpulse;
+            D->l_Npulse = l;
+            D->s_Npulse = 0;
         } else {
-            //stall: dummy pulses at 2kHz(Thms)
+            //stall: dummy pulses, period = Tstep
             D->dir = Axis::STOP;
-            D->Tk_period_plus = Thms_in_Tk - 1;
-            D->Tk_period_minus = Thms_in_Tk - 1;
-            D->Ap_total = D->Ap_rem = preloaded->dThms;
-            D->Ap_l = 0;
-            D->Ap_s = 0;
+            D->period_plus_Tclk = Tstep/Tclk - 1;
+            D->period_minus_Tclk = Tstep/Tclk - 1;
+            D->total_Npulse = D->rem_Npulse = preloaded->dTstep;
+            D->l_Npulse = 0;
+            D->s_Npulse = 0;
         }
     }
 }
 
 void TIM1_UP_IRQHandler() {
-    TIM1->ARR = preloaded->dThms * 2 - 1;
+    TIM1->ARR = preloaded->dTstep * 2 - 1;
 
     //preload next command in FIFO
     DriveCmd *cmd;
@@ -215,10 +214,10 @@ void drive_init() {
 	//RCC_ENR(APB1, TIM4EN) = 1; RCC_RSTR(APB1, TIM4RST) = 1; RCC_RSTR(APB1, TIM4RST) = 0;
 	//RCC_ENR(APB2, TIM8EN) = 1; RCC_RSTR(APB2, TIM8RST) = 1; RCC_RSTR(APB2, TIM8RST) = 0;
 
-    //TIM1: half-ms precision
-    //NOTE: Use quarter-ms timebase to avoid setting ARR to 0, which results
+    //TIM1: time step precision
+    //NOTE: Use half time step timebase to avoid setting ARR to 0, which results
     //in no interrupt at all
-    TIM1->PSC = Thms_in_Tk / 2 - 1;
+    TIM1->PSC = Tstep/Tclk / 2 - 1;
     TIM1->CNT = 0;
 
     TIM1->EGR = TIM_EGR_UG;
@@ -271,7 +270,7 @@ void drive_start() {
         //NOTE: CEN will also flush CC preload register
         TIMX->CR1 |= TIM_CR1_CEN;
 
-        A.data_curr->Ap_rem = 1;
+        A.data_curr->rem_Npulse = 1;
         A.update();
 
         NVIC_ClearPendingIRQ(A.TIMX_IRQn);
@@ -308,15 +307,15 @@ void drive_stop() {
     __enable_irq();
 }
 
-bool drive_push(U32 dt, I32 dx, I32 dy, U16 timeout) {
+bool drive_push(U32 dTstep, I32 dx_Npulse, I32 dy_Npulse, U16 timeout) {
     //allocate
     DriveCmd* cmd = drive_cmd_pool.allocate();
     if (cmd == NULL) return false;
 
     //fill
-    cmd->dThms = dt;
-    cmd->dAp[0] = dx;
-    cmd->dAp[1] = dy;
+    cmd->dTstep = dTstep;
+    cmd->dNpulse[0] = dx_Npulse;
+    cmd->dNpulse[1] = dy_Npulse;
 
     //send
     if (os_mbx_send(drive_cmd_mbx, cmd, timeout) == OS_R_OK) return true;
