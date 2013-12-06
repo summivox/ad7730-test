@@ -1,4 +1,3 @@
-//misc
 #ifndef _MISC_HPP_
 #define _MISC_HPP_
 

@@ -1,4 +1,3 @@
-//pinout
 #ifndef _PINOUT_HPP_
 #define _PINOUT_HPP_
 

@@ -1,4 +1,3 @@
-//pinout
 #include "stdafx.h"
 #pragma hdrstop
 using namespace std;
