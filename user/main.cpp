@@ -16,12 +16,15 @@ __task void main_task(){
         "\r\n",
         __DATE__, __TIME__
     );
+    
+    int* a = new int[5];
+    delete a;
 
     drive_start();
 
     os_dly_wait(100);
 
-    vel_gen vg(Acc_line_max, V_feed_max, V_feed_start, V_feed_start, 50);
+    vel_gen vg(Acc_line_max, V_feed_start, V_feed_max, V_feed_start, 50);
 
     float xvec = arm_cos_f32(CONV(30, Adeg, Arad));
     float yvec = arm_sin_f32(CONV(30, Adeg, Arad));
