@@ -31,7 +31,7 @@ __task void main_task(){
         float d = s*Lmm_Lpulse;
         int x = floor(xvec*d);
         int y = floor(yvec*d);
-#if false
+#if true
         drive_push(1, x - xlast, y - ylast);
 #else
         printf("\t%5d, %5d\r\n", x, y);

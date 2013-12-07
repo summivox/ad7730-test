@@ -51,7 +51,7 @@
 #                   define USART1_TX_BUF_LF 1
 
 //                  <o> Buffer Size
-#                   define USART1_TX_BUF_SIZE 32
+#                   define USART1_TX_BUF_SIZE 128
 
 #               endif//USART1_TX_BUF_EN
 //              </e>
@@ -65,7 +65,7 @@
 #               define USART1_RX_BUF_EN 1
 #               if     USART1_RX_BUF_EN==1
 //                  <o> Buffer Size
-#                   define USART1_RX_BUF_SIZE 128
+#                   define USART1_RX_BUF_SIZE 4096
 
 #               endif//USART1_RX_BUF_EN
 //              </e>
