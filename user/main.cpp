@@ -2,11 +2,17 @@
 #pragma hdrstop
 using namespace std;
 
+#include <iostream>
+#include <sstream>
+
 #include "conf.hpp"
 #include "misc.hpp"
 
 #include "drive.hpp"
 #include "vel_gen.hpp"
+#include "parser.hpp"
+
+typedef stringstream SS;
 
 __task void main_task(){
 
@@ -24,13 +30,13 @@ __task void main_task(){
 
     os_dly_wait(100);
 
+    /*
     vel_gen vg(Acc_line_max, V_feed_start, V_feed_max, V_feed_start, 50);
 
     float xvec = arm_cos_f32(CONV(30, Adeg, Arad));
     float yvec = arm_sin_f32(CONV(30, Adeg, Arad));
     int xlast = 0, ylast = 0;
-    int i = 0;
-    for (float s ; vg(s) ; ++i) {
+    for (float s ; vg(s) ; ) {
         float d = s*Lmm_Lpulse;
         int x = floor(xvec*d);
         int y = floor(yvec*d);
@@ -41,6 +47,18 @@ __task void main_task(){
 #endif
         xlast = x;
         ylast = y;
+    }
+    */
+    
+    SS in("M 10 10 L 30 10 L 20 30 z");
+    parser p(in);
+    for (Seg* seg ; p(seg) ; ) {
+        if (!seg) {
+            printf("!!! parse error!");
+            break;
+        }
+        seg->exec(V_feed_start, V_feed_max, V_feed_start);
+        delete seg;
     }
 
     printf("### done\r\n");
