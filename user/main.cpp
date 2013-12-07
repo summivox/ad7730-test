@@ -4,6 +4,7 @@ using namespace std;
 
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include "conf.hpp"
 #include "misc.hpp"
@@ -13,6 +14,16 @@ using namespace std;
 #include "parser.hpp"
 
 typedef stringstream SS;
+
+bool exec_path(istream& in) {
+    parser p(in);
+    for (Seg* seg ; p(seg) ; ) {
+        if (!seg) return false;
+        seg->exec(V_feed_start, V_feed_max, V_feed_start);
+        delete seg;
+    }
+    return true;
+}
 
 __task void main_task(){
 
@@ -28,20 +39,18 @@ __task void main_task(){
     os_dly_wait(100);
 
     //SS in("M 10 10  30 10 L 20 30 z");
-    SS in("M30,20 h-15 a15,15 0 1,0 15,-15 z");
-    parser p(in);
-    for (Seg* seg ; p(seg) ; ) {
-        if (!seg) {
-            printf("!!! parse error!");
-            break;
+    //SS in("M30,20 h-15 a15,15 0 1,0 15,-15 z");
+    string path;
+    while (1) {
+        //read from serial
+        getline(cin, path);
+        SS in(path);
+        if (exec_path(in)) {
+            printf("### done\r\n");
+        } else {
+            printf("!!! error\r\n");
         }
-        seg->exec(V_feed_start, V_feed_max, V_feed_start);
-        delete seg;
     }
-
-    printf("### done\r\n");
-
-    while (1) ;
 }
 
 int main(){
