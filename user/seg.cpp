@@ -20,6 +20,8 @@ MoveSeg::MoveSeg(float x1, float y1, float x2, float y2)
 }
 
 void MoveSeg::exec(float v1, float v2, float v3) {
+    printf("<<< Move\t(%8.3f, %8.3f)\r\n", x2, y2); //DEBUG
+
     os_dly_wait(100);
     //TODO: shut down laser
     float x = round((x2 - x1)*Lmm_Lpulse);
@@ -40,7 +42,7 @@ LineSeg::LineSeg(float x1, float y1, float x2, float y2)
 }
 
 void LineSeg::exec(float v1, float v2, float v3) {
-    printf("LineSeg(%8.3f, %8.3f) %8.3f -> %8.3f -> %8.3f\r\n",
+    printf("<<< Line\t(%8.3f, %8.3f) %8.3f -> %8.3f -> %8.3f\r\n",
            x2, y2, v1, v2, v3); //DEBUG
 
     vel_gen vg(Acc_line_max, v1, v2, v3, length);
