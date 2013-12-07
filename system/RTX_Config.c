@@ -39,7 +39,7 @@
 //   <i> Set the stack size for tasks which is assigned by the system.
 //   <i> Default: 512
 #ifndef OS_STKSIZE
- #define OS_STKSIZE     256
+ #define OS_STKSIZE     1024
 #endif
 
 // <q>Check for the stack overflow
@@ -90,7 +90,7 @@
 // =============================
 // <i> Enable Round-Robin Task switching.
 #ifndef OS_ROBIN
- #define OS_ROBIN       1
+ #define OS_ROBIN       0
 #endif
 
 //   <o>Round-Robin Timeout [ticks] <1-1000>
@@ -148,7 +148,11 @@
 __task void os_idle_demon (void) {
   /* The idle demon is a system task, running when no other task is ready */
   /* to run. The 'os_xxx' function calls are not allowed from this task.  */
-
+  
+  //add hook for initializing thread-safe heap management
+  extern void heap_mut_init(void);
+  heap_mut_init();
+    
   for (;;) {
   /* HERE: include optional user code to be executed when no task runs.*/
   }
@@ -190,6 +194,7 @@ void os_error (U32 err_code) {
   /* 'err_code' holds the runtime error code (defined in RTL.H).         */
 
   /* HERE: include optional code to be executed on runtime error. */
+  printf("OS_ERROR(%d)\r\n", err_code);
   for (;;);
 }
 
