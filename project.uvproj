@@ -691,6 +691,11 @@
               <FileType>8</FileType>
               <FilePath>.\helper\rtx.cpp</FilePath>
             </File>
+            <File>
+              <FileName>rtx_heap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\helper\rtx_heap.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
