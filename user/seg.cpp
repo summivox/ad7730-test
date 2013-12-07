@@ -38,12 +38,19 @@ LineSeg::LineSeg(float x1, float y1, float x2, float y2)
     float dx = x2 - x1;
     float dy = y2 - y1;
     theta1 = theta2 = atan2(dy, dx);
-    arm_sqrt_f32(dx*dx + dy*dy, &length);
+    float l2 = dx*dx + dy*dy;
+    if (l2 <= 1e-9) {
+        length = 0; //denormalized
+    } else {
+        arm_sqrt_f32(l2, &length);
+    }
 }
 
 void LineSeg::exec(float v1, float v2, float v3) {
     printf("<<< Line\t(%8.3f, %8.3f) %8.3f -> %8.3f -> %8.3f\r\n",
            x2, y2, v1, v2, v3); //DEBUG
+
+    if (length == 0) return;
 
     vel_gen vg(Acc_line_max, v1, v2, v3, length);
     float xvec = arm_cos_f32(theta1);
