@@ -29,7 +29,7 @@ $emit_impl(parser, Seg*) {
         x += x_curr; \
         y += y_curr; \
     } \
-} while (false) 
+} while (false)
 #define UPDATE_CURR() do { \
     x_curr = x; \
     y_curr = y; \
@@ -107,7 +107,7 @@ $emit_impl(parser, Seg*) {
                 INPUT(y);
                 HANDLE_REL();
 
-                printf("A(r: (%8.3f, %8.3f), phi: %8.3f, flag: (%d, %d), (%8.3f, %8.3f))\n", 
+                printf("A(r: (%8.3f, %8.3f), phi: %8.3f, flag: (%d, %d), (%8.3f, %8.3f))\n",
                        rx, ry, phi, flag1, flag2, x, y);
                 //TODO: yield
 

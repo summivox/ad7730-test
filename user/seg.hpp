@@ -3,7 +3,7 @@
 
 
 ////////////
-// base class: common info for 
+// base class: common info for
 
 struct Seg {
     //{entry, exit} {point, tangent}
