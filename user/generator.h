@@ -24,4 +24,12 @@ struct _generator
             _line=__LINE__;\
             _rv = (V); return true; case __LINE__:;\
         } while (0)
+
+// support for separate header/source pair
+// author: smilekzs (http://github.com/smilekzs)
+
+#define $emit_decl(T) bool operator()(T& _rv)
+#define $emit_impl(NAME, T) bool NAME::operator()(T& _rv) { \
+                                switch(_line) { case 0:;
+
 #endif
