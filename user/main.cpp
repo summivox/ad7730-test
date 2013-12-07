@@ -27,7 +27,7 @@ __task void main_task(){
 
     os_dly_wait(100);
 
-    SS in("M 10 10 L 30 10 L 20 30 z");
+    SS in("M 10 10  30 10 L 20 30 z");
     parser p(in);
     for (Seg* seg ; p(seg) ; ) {
         if (!seg) {
