@@ -29,8 +29,10 @@ static const int Lmm_Lpulse = 512;
 static const float V_feed_start = 5;
 static const float V_feed_max   = 50;
 static const float V_move_max   = 100;
-static const float Acc_line_max = 100;
+static const float Acc_line_max = 200;
 static const float Acc_arc_max  = 100;
+static const float Acc_move_max = 400;
+static const float move_stop_Tms = CONV(V_move_max/Acc_move_max, Ts, Tms);
 
 
 #endif//_CONF_HPP_

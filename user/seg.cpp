@@ -9,6 +9,11 @@ using namespace std;
 #include "drive.hpp"
 
 
+inline float round(float x) {
+    return floor(x + 0.5);
+}
+
+
 MoveSeg::MoveSeg(float x1, float y1, float x2, float y2)
                 :Seg(x1, y1, x2, y2) {
     length = 0; //special: not actually a segment
@@ -17,12 +22,12 @@ MoveSeg::MoveSeg(float x1, float y1, float x2, float y2)
 void MoveSeg::exec(float v1, float v2, float v3) {
     os_dly_wait(100);
     //TODO: shut down laser
-    float x = floor((x2 - x1)*Lmm_Lpulse);
-    float y = floor((y2 - y1)*Lmm_Lpulse);
+    float x = round((x2 - x1)*Lmm_Lpulse);
+    float y = round((y2 - y1)*Lmm_Lpulse);
     float t = max(x, y) / V_move_max;
     drive_push(t, x, y);
     //TODO: resume laser
-    os_dly_wait(100);
+    os_dly_wait(ceil(move_stop_Tms));
 }
 
 
@@ -45,8 +50,8 @@ void LineSeg::exec(float v1, float v2, float v3) {
     float ylast = y1;
     for (float s ; vg(s) ; ) {
         float d = s*Lmm_Lpulse;
-        int x = floor(x1 + xvec*d);
-        int y = floor(y1 + yvec*d);
+        int x = round(x1 + xvec*d);
+        int y = round(y1 + yvec*d);
         drive_push(1, x - xlast, y - ylast);
         xlast = x;
         ylast = y;
