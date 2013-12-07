@@ -107,9 +107,8 @@ $emit_impl(parser, Seg*) {
                 INPUT(y);
                 HANDLE_REL();
 
-                printf("A(r: (%8.3f, %8.3f), phi: %8.3f, flag: (%d, %d), (%8.3f, %8.3f))\n",
-                       rx, ry, phi, flag1, flag2, x, y);
-                //TODO: yield
+                $yield(new ArcSeg(x_curr, y_curr, x, y,
+                                  rx, ry, phi, flag1, flag2));
 
                 UPDATE_CURR();
                 FF();

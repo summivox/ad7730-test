@@ -29,5 +29,17 @@ struct LineSeg : Seg {
     virtual void exec(float v1, float v2, float v3);
 };
 
+struct ArcSeg : Seg {
+    float r1, r2, phi;
+    bool is_large, is_sweep;
+
+    float cx, cy, a1, a2; //NOTE: a1/a2 => radial ; theta1/theta2 => tangent
+
+    explicit ArcSeg(float x1, float y1, float x2, float y2,
+                    float r1, float r2, float phi,
+                    bool is_large, bool is_sweep);
+    virtual void exec(float v1, float v2, float v3);
+};
+
 
 #endif//_SEG_HPP_
