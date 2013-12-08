@@ -6,10 +6,8 @@ using namespace std;
 
 
 IRQ_DECL(TIM1_UP_IRQn, TIM1_UP_IRQHandler, 2, 0);
-IRQ_DECL(TIM2_IRQn, TIM2_IRQHandler, 1, 0);
-IRQ_DECL(TIM3_IRQn, TIM3_IRQHandler, 1, 0);
-//IRQ_DECL(TIM4_IRQn, TIM4_IRQHandler, 1, 0);
-//IRQ_DECL(TIM8_CC_IRQn, TIM8_CC_IRQHandler, 1, 0);
+IRQ_DECL(TIM4_IRQn, TIM4_IRQHandler, 1, 0);
+IRQ_DECL(TIM8_CC_IRQn, TIM8_CC_IRQHandler, 1, 0);
 
 
 struct Axis {
@@ -110,28 +108,18 @@ void Axis::update() {
 }
 
 static Axis axis[N_axis_count] = {
-    {TIM2, TIM2_IRQn},
-    {TIM3, TIM3_IRQn},
-    //{TIM4, TIM4_IRQn},
-    //{TIM8, TIM8_CC_IRQn}
+    {TIM4, TIM4_IRQn},
+    {TIM8, TIM8_CC_IRQn},
 };
 
-void TIM2_IRQHandler() {
+void TIM4_IRQHandler() {
     axis[0].update();
-    TIM2->SR = ~TIM_SR_CC1IF;
-}
-void TIM3_IRQHandler() {
-    axis[1].update();
-    TIM3->SR = ~TIM_SR_CC1IF;
-}
-/*void TIM4_IRQHandler(){
-    axis[2].update();
     TIM4->SR = ~TIM_SR_CC1IF;
 }
-void TIM8_CC_IRQHandler(){
-    axis[3].update();
+void TIM8_CC_IRQHandler() {
+    axis[1].update();
     TIM8->SR = ~TIM_SR_CC1IF;
-}*/
+}
 
 
 //when command FIFO gets empty, generate "idle" commands(dNpulse[]==0) instead
@@ -209,15 +197,13 @@ void TIM1_UP_IRQHandler() {
 void drive_init() {
     //Reset all timers
 	RCC_ENR(APB2, TIM1EN) = 1; RCC_RSTR(APB2, TIM1RST) = 1; RCC_RSTR(APB2, TIM1RST) = 0;
-	RCC_ENR(APB1, TIM2EN) = 1; RCC_RSTR(APB1, TIM2RST) = 1; RCC_RSTR(APB1, TIM2RST) = 0;
-	RCC_ENR(APB1, TIM3EN) = 1; RCC_RSTR(APB1, TIM3RST) = 1; RCC_RSTR(APB1, TIM3RST) = 0;
-	//RCC_ENR(APB1, TIM4EN) = 1; RCC_RSTR(APB1, TIM4RST) = 1; RCC_RSTR(APB1, TIM4RST) = 0;
-	//RCC_ENR(APB2, TIM8EN) = 1; RCC_RSTR(APB2, TIM8RST) = 1; RCC_RSTR(APB2, TIM8RST) = 0;
+    RCC_ENR(APB1, TIM4EN) = 1; RCC_RSTR(APB1, TIM4RST) = 1; RCC_RSTR(APB1, TIM4RST) = 0;
+    RCC_ENR(APB2, TIM8EN) = 1; RCC_RSTR(APB2, TIM8RST) = 1; RCC_RSTR(APB2, TIM8RST) = 0;
 
     //TIM1: time step precision
     //NOTE: Use half time step timebase to avoid setting ARR to 0, which results
     //in no interrupt at all
-    TIM1->PSC = Tstep/Tclk / 2 - 1;
+    TIM1->PSC = CONV(1, Tstep, Tclk)/2 - 1;
     TIM1->CNT = 0;
 
     TIM1->EGR = TIM_EGR_UG;
@@ -277,11 +263,9 @@ void drive_start() {
         NVIC_EnableIRQ(A.TIMX_IRQn);
     }
     //NOTE: trigger selection not guaranteed to be the same!
-    //for 1->(2,3,4,8) it HAPPENS to be the same.
-    TIM2->SMCR = (TIM_SMCR_SMS_0*4) | (TIM_SMCR_TS_0*0);
-    TIM3->SMCR = (TIM_SMCR_SMS_0*4) | (TIM_SMCR_TS_0*0);
-    //TIM4->SMCR = (TIM_SMCR_SMS_0*4) | (TIM_SMCR_TS_0*0);
-    //TIM8->SMCR = (TIM_SMCR_SMS_0*4) | (TIM_SMCR_TS_0*0);
+    //for 1->(4,8) it HAPPENS to be the same.
+    TIM4->SMCR = (TIM_SMCR_SMS_0*4) | (TIM_SMCR_TS_0*0);
+    TIM8->SMCR = (TIM_SMCR_SMS_0*4) | (TIM_SMCR_TS_0*0);
 
     //Enable TIM1
     //NOTE: Enabling TIM1 won't generate its own UEV, so we need to manually

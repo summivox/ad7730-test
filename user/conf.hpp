@@ -8,7 +8,7 @@
 ////////////
 // buffer size
 
-static const int N_drive_cmd_max = 20; //drive command
+static const int N_drive_cmd_max = 5; //drive command
 
 
 ////////////
@@ -33,6 +33,8 @@ static const float Acc_line_max = 200;
 static const float Acc_arc_max  = 100;
 static const float Acc_move_max = 400;
 static const float move_stop_Tms = CONV(V_move_max/Acc_move_max, Ts, Tms);
+
+static const float laser_period_Tus = 2000;
 
 
 #endif//_CONF_HPP_

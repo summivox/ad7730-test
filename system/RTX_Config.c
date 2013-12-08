@@ -194,7 +194,7 @@ void os_error (U32 err_code) {
   /* 'err_code' holds the runtime error code (defined in RTL.H).         */
 
   /* HERE: include optional code to be executed on runtime error. */
-  printf("OS_ERROR(%d)\r\n", err_code);
+  //printf("OS_ERROR(%d)\r\n", err_code);
   for (;;);
 }
 
