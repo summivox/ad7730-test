@@ -23,7 +23,26 @@ void MoveSeg::exec(float v1, float v2, float v3) {
 
     float x = (x2 - x1);
     float y = (y2 - y1);
-    float t = max(fabs(x), fabs(y)) / V_move_max;
+    float xa = fabs(x);
+    float ya = fabs(y);
+    if (xa < ya) {
+        float t = xa / V_move_max;
+        int xn = round(x*Lmm_Lpulse);
+        int tn = round(CONV(t, Ts, Tstep));
+        drive_push(tn, xn, xn);
+        y -= x;
+        ya -= xa;
+        x = xa = 0;
+    } else {
+        float t = ya / V_move_max;
+        int yn = round(y*Lmm_Lpulse);
+        int tn = round(CONV(t, Ts, Tstep));
+        drive_push(tn, yn, yn);
+        x -= y;
+        xa -= ya;
+        y = ya = 0;
+    }
+    float t = max(xa, ya) / V_move_max;
     int xn = round(x*Lmm_Lpulse);
     int yn = round(y*Lmm_Lpulse);
     int tn = round(CONV(t, Ts, Tstep));
