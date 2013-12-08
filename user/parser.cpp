@@ -11,7 +11,9 @@ using namespace std;
 $emit_impl(parser, Seg*) {
 
     //shorthand macros: all self-descriptive
+
 #define STOP() $yield(NULL)
+
 #define BREAK_IF_EOF() if (in.eof()) break
 #define SKIP_UNTIL(cond) while (!in.eof() && (cond)) in.get()
 #define FF() \
@@ -25,6 +27,8 @@ $emit_impl(parser, Seg*) {
     if (in.fail()) STOP(); \
 } while (false)
 #define CAN_CHAIN (!isalpha(in.peek()))
+
+#define SAME_POINT (x == x_curr && y == y_curr)
 #define HANDLE_REL() do { \
     if (is_rel) { \
         x += x_curr; \
@@ -57,7 +61,7 @@ $emit_impl(parser, Seg*) {
             INPUT(y);
             HANDLE_REL();
 
-            $yield(new MoveSeg(x_curr, y_curr, x, y));
+            if (!SAME_POINT) $yield(new MoveSeg(x_curr, y_curr, x, y));
 
             UPDATE_CURR();
             SET_START();
@@ -70,7 +74,7 @@ $emit_impl(parser, Seg*) {
                 INPUT(y);
                 HANDLE_REL();
 
-                $yield(new LineSeg(x_curr, y_curr, x, y));
+                if (!SAME_POINT) $yield(new LineSeg(x_curr, y_curr, x, y));
 
                 UPDATE_CURR();
                 FF();
@@ -81,7 +85,7 @@ $emit_impl(parser, Seg*) {
                 HANDLE_REL();
                 y = y_curr;
 
-                $yield(new LineSeg(x_curr, y_curr, x, y));
+                if (!SAME_POINT) $yield(new LineSeg(x_curr, y_curr, x, y));
 
                 UPDATE_CURR();
                 FF();
@@ -92,7 +96,7 @@ $emit_impl(parser, Seg*) {
                 HANDLE_REL();
                 x = x_curr;
 
-                $yield(new LineSeg(x_curr, y_curr, x, y));
+                if (!SAME_POINT) $yield(new LineSeg(x_curr, y_curr, x, y));
 
                 UPDATE_CURR();
                 FF();
@@ -108,8 +112,8 @@ $emit_impl(parser, Seg*) {
                 INPUT(y);
                 HANDLE_REL();
 
-                $yield(new ArcSeg(x_curr, y_curr, x, y,
-                                  rx, ry, phi, flag1, flag2));
+                if (!SAME_POINT) $yield(new ArcSeg(x_curr, y_curr, x, y,
+                                                   rx, ry, phi, flag1, flag2));
 
                 UPDATE_CURR();
                 FF();
