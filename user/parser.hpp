@@ -19,6 +19,7 @@ $generator(parser) {
 
     char cmd;
     bool is_rel;
+    bool first_done;
 
     float x, y, rx, ry, phi;
     int flag1, flag2;
@@ -28,7 +29,8 @@ $generator(parser) {
     explicit parser(istream& in, float x, float y)
                    :in(in),
                     x_curr(x), y_curr(y),
-                    x_start(x), y_start(y) {};
+                    x_start(x), y_start(y),
+                    first_done(false) {};
     $emit_decl(Seg*);
 };
 

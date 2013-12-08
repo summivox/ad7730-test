@@ -59,7 +59,7 @@ $emit_impl(parser, Seg*) {
         } else if (cmd == 'M') {
             INPUT(x);
             INPUT(y);
-            HANDLE_REL();
+            if (first_done) HANDLE_REL(); //special: 'M' as 1st cmd is treated as absolute
 
             if (!SAME_POINT) $yield(new MoveSeg(x_curr, y_curr, x, y));
 
@@ -122,6 +122,7 @@ $emit_impl(parser, Seg*) {
             //printf("UNRECOGNIZED: %c\n", cmd); //DEBUG
             STOP();
         }
+        first_done = true;
     }
 
 } $stop;
