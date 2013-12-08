@@ -19,27 +19,14 @@ inline float round(float x) {
     return floor(x + .5);
 }
 
-#define LASER_PUSH(verb) \
-    bool _laser_before = laser_is_on; \
-    laser_##verb();
-#define LASER_POP() \
-    if (_laser_before) { \
-        laser_on();\
-    } else { \
-        laser_off(); \
-    }
-
 
 MoveSeg::MoveSeg(float x1, float y1, float x2, float y2)
                 :Seg(x1, y1, x2, y2) {
-    length = 0; //special: not actually a segment
+    length = -1; //special: not actually a segment
 }
 
 void MoveSeg::exec(float v1, float v2, float v3) {
     printf("<<< M(%8.3f, %8.3f)\r\n", x2, y2); //DEBUG
-
-    os_dly_wait(100); //TODO: base on actual speed
-    LASER_PUSH(off);
 
     float x = (x2 - x1);
     float y = (y2 - y1);
@@ -48,9 +35,6 @@ void MoveSeg::exec(float v1, float v2, float v3) {
     int yn = round(y*Lmm_Lpulse);
     int tn = round(CONV(t, Ts, Tstep));
     drive_push(tn, xn, yn);
-
-    os_dly_wait(ceil(move_stop_Tms));
-    LASER_POP();
 }
 
 
@@ -73,8 +57,6 @@ void LineSeg::exec(float v1, float v2, float v3) {
 
     if (length == 0) return;
 
-    LASER_PUSH(on);
-
     vel_gen vg(Acc_line_max, v1, v2, v3, length);
     float xvec = arm_cos_f32(theta1);
     float yvec = arm_sin_f32(theta1);
@@ -87,8 +69,6 @@ void LineSeg::exec(float v1, float v2, float v3) {
         xlast = x;
         ylast = y;
     }
-
-    LASER_POP();
 }
 
 
@@ -155,8 +135,6 @@ void ArcSeg::exec(float v1, float v2, float v3) {
            CONV(a1, Arad, Adeg),
            CONV(a2, Arad, Adeg)); //DEBUG
 
-    LASER_PUSH(on);
-
     vel_gen wg(Acc_arc_max/r1, v1/r1, v2/r1, v3/r1, length/r1);
     int xlast = round(x1*Lmm_Lpulse);
     int ylast = round(y1*Lmm_Lpulse);
@@ -172,6 +150,4 @@ void ArcSeg::exec(float v1, float v2, float v3) {
         xlast = x;
         ylast = y;
     }
-
-    LASER_POP();
 }
