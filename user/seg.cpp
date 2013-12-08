@@ -21,33 +21,40 @@ MoveSeg::MoveSeg(float x1, float y1, float x2, float y2)
 void MoveSeg::exec(float v1, float v2, float v3) {
     printf("<<< M(%8.3f, %8.3f)\r\n", x2, y2); //DEBUG
 
-    float x = (x2 - x1);
-    float y = (y2 - y1);
-    float xa = fabs(x);
-    float ya = fabs(y);
-    if (xa < ya) {
-        float t = xa / V_move_max;
-        int xn = round(x*Lmm_Lpulse);
-        int tn = round(CONV(t, Ts, Tstep));
-        drive_push(tn, xn, xn);
-        y -= x;
-        ya -= xa;
-        x = xa = 0;
+    int x1n = round(x1*Lmm_Lpulse);
+    int y1n = round(y1*Lmm_Lpulse);
+    int x2n = round(x2*Lmm_Lpulse);
+    int y2n = round(y2*Lmm_Lpulse);
+    int dxn = x2n - x1n;
+    int dyn = y2n - y1n;
+    int dxn_a = abs(dxn);
+    int dyn_a = abs(dyn);
+    int diag_x, diag_y, diag_a;
+    if (dxn_a < dyn_a) {
+        diag_x = dxn;
+        diag_y = dyn_a ? dxn_a * (dyn/dyn_a) : 0;
+        diag_a = dxn_a;
     } else {
-        float t = ya / V_move_max;
-        int yn = round(y*Lmm_Lpulse);
-        int tn = round(CONV(t, Ts, Tstep));
-        drive_push(tn, yn, yn);
-        x -= y;
-        xa -= ya;
-        y = ya = 0;
+        diag_x = dxn_a ? dyn_a * (dxn/dxn_a) : 0;
+        diag_y = dyn;
+        diag_a = dyn_a;
     }
-    float t = max(xa, ya) / V_move_max;
-    int xn = round(x*Lmm_Lpulse);
-    int yn = round(y*Lmm_Lpulse);
-    int tn = round(CONV(t, Ts, Tstep));
-    drive_push(tn, xn, yn);
-    os_dly_wait(CONV(tn, Tstep, Tms)); //workaround sync problem
+    dxn -= diag_x;
+    dyn -= diag_y;
+    dxn_a -= diag_a; //at least one is zero
+    dyn_a -= diag_a;
+
+#define T(n) (floor(CONV((n)/(V_move_max*Lmm_Lpulse), Ts, Tstep)))
+#define D(tt, xx, yy) do { \
+    drive_push(tt, xx, yy); \
+    os_dly_wait(CONV(tt, Tstep, Tms)); \
+} while (false);
+
+    D(T(diag_a), diag_x, diag_y);
+    D(T(dxn_a + dyn_a), dxn, dyn);
+
+#undef T
+#undef D
 }
 
 
