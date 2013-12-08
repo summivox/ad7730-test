@@ -4,11 +4,16 @@ using namespace std;
 
 #include "laser.hpp"
 
+#include "math.hpp"
+#include "conf.hpp"
+
+#include "qep.hpp"
+
 
 IRQ_DECL(TIM2_IRQn, TIM2_IRQHandler, 3, 0);
 
 bool laser_is_on = false;
-int laser_tone = 0;
+float laser_tone = 0;
 
 void laser_init() {
     laser_is_on = false;
@@ -26,39 +31,30 @@ void laser_init() {
 
     TIM2->EGR = TIM_EGR_UG;
     TIM2->SR = ~TIM_SR_UIF;
-    
+    TIM2->CR1 |= TIM_CR1_CEN;
+
     TIM2->DIER = TIM_DIER_UIE;
     NVIC_EnableIRQ(TIM2_IRQn);
-}
 
-void laser_on() {
-    TIM2->EGR = TIM_EGR_UG;
-    TIM2->SR = ~TIM_SR_UIF;
-    TIM2->CCER = TIM_CCER_CC3E;
-    TIM2->CR1 |= TIM_CR1_CEN;
-    laser_is_on = true;
-}
-
-void laser_off() {
-    TIM2->CCER = 0;
-    TIM2->CR1 &= ~TIM_CR1_CEN;
-    laser_is_on = false;
+    qep_vel_init();
 }
 
 void laser_set(bool state) {
-    if (state) laser_on(); else laser_off();
+    TIM2->CCER = state ? TIM_CCER_CC3E : 0;
 }
 
-void laser_set_tone(int t) {
-    if (t < 0) t = 0;
-    if (t > 100) t = 100;
+void laser_set_tone(float t) {
+    if (t <= 0) t = 0;
+    if (t >= 1) t = 1;
     laser_tone = t;
-
-    //TODO: move to dynamic toning
-    TIM2->CCR3 = t * laser_period_Tus / 100;
 }
 
 void TIM2_IRQHandler() {
-    //TODO
+    qep_vel_upd();
+    float duty = qep_vel/Lmm_Lpulse * laser_tone * laser_tone_factor;
+    if (duty >= 0.95) duty = 1;
+    else duty = pow(duty, laser_tone_gamma);
+    int duty_n = round(duty * laser_period_Tus);
+    TIM2->CCR3 = duty_n;
     TIM2->SR = ~TIM_SR_UIF;
 }

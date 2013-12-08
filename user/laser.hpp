@@ -5,15 +5,15 @@
 
 
 extern bool laser_is_on;
-extern int laser_tone; //[0, 100]
+extern float laser_tone; //[0, 1]
 
 void laser_init() AUTORUN;
 
-void laser_on(void);
-void laser_off(void);
 void laser_set(bool state);
+inline void laser_on(void) { laser_set(true); }
+inline void laser_off(void) { laser_set(false); }
 
-void laser_set_tone(int t);
+void laser_set_tone(float t);
 
 
 //CONV(N_drive_cmd_max, Tstep, Tms)

@@ -15,7 +15,7 @@ struct Seg {
                 :x1(x1), y1(y1), x2(x2), y2(y2) {}
     virtual void exec(float v1, float v2, float v3) = 0;
 
-    inline bool valid() const { return length >= 0; }
+    inline bool solid() const { return length >= 0; } //if segment should be drawn
 };
 
 

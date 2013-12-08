@@ -5,6 +5,7 @@ using namespace std;
 #include "seg.hpp"
 
 #include "conf.hpp"
+#include "math.hpp"
 
 #include "drive.hpp"
 #include "laser.hpp"
@@ -12,17 +13,9 @@ using namespace std;
 #include "vel_gen.hpp"
 
 
-static const float TWO_PI = 2*PI;
-static const float HALF_PI = .5*PI;
-
-inline float round(float x) {
-    return floor(x + .5);
-}
-
-
 MoveSeg::MoveSeg(float x1, float y1, float x2, float y2)
                 :Seg(x1, y1, x2, y2) {
-    length = -1; //special: not actually a segment
+    length = -1; //not drawn
 }
 
 void MoveSeg::exec(float v1, float v2, float v3) {
@@ -35,6 +28,7 @@ void MoveSeg::exec(float v1, float v2, float v3) {
     int yn = round(y*Lmm_Lpulse);
     int tn = round(CONV(t, Ts, Tstep));
     drive_push(tn, xn, yn);
+    os_dly_wait(CONV(tn, Tstep, Tms)); //workaround sync problem
 }
 
 
@@ -104,18 +98,14 @@ ArcSeg::ArcSeg(float x1, float y1, float x2, float y2,
 
     //fix the angles
     if (is_sweep) {
-        theta1 = a1 + HALF_PI;
-        theta2 = a2 + HALF_PI;
-        if (theta1 > +PI) theta1 -= TWO_PI;
-        if (theta2 > +PI) theta2 -= TWO_PI;
+        theta1 = wrap_angle(a1 + HALF_PI);
+        theta2 = wrap_angle(a2 + HALF_PI);
 
         if (a2 < a1) a2 += TWO_PI;
         length = r*(a2 - a1);
     } else {
-        theta1 = a1 - HALF_PI;
-        theta2 = a2 - HALF_PI;
-        if (theta1 < -PI) theta1 += TWO_PI;
-        if (theta2 < -PI) theta2 += TWO_PI;
+        theta1 = wrap_angle(a1 - HALF_PI);
+        theta2 = wrap_angle(a2 - HALF_PI);
 
         if (a2 > a1) a2 -= TWO_PI;
         length = r*(a1 - a2);

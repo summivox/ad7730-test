@@ -26,7 +26,7 @@ void pinout_init(){
     // timers
     //  TIM2: remap 2'b11
     //  TIM4: remap 1'b1
-    
+
     AFIO->MAPR = (AFIO->MAPR & ~AFIO_MAPR_TIM2_REMAP) | (AFIO_MAPR_TIM2_REMAP_0*3);
     AFIO->MAPR |= AFIO_MAPR_TIM4_REMAP;
 

@@ -23,10 +23,10 @@ $generator(parser) {
     float x, y, rx, ry, phi;
     int flag1, flag2;
 
-    //TODO: cx, cy, ... 
+    //TODO: cx, cy, ...
 
     explicit parser(istream& in, float x, float y)
-                   :in(in), 
+                   :in(in),
                     x_curr(x), y_curr(y),
                     x_start(x), y_start(y) {};
     $emit_decl(Seg*);

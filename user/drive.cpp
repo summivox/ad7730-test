@@ -4,6 +4,8 @@ using namespace std;
 
 #include "drive.hpp"
 
+#include "conf.hpp"
+
 
 IRQ_DECL(TIM1_UP_IRQn, TIM1_UP_IRQHandler, 2, 0);
 IRQ_DECL(TIM4_IRQn, TIM4_IRQHandler, 1, 0);
@@ -49,6 +51,10 @@ struct Axis {
     Data * volatile data_curr;
     Data * volatile data_next;
 
+#ifdef QEP_MOCKUP
+    uint16_t volatile qep;
+#endif
+
     void init();
     //NOTE: Won't work when running from RAM. Cause unknown.
     //__forceinline void update() IN_RAM;
@@ -76,11 +82,23 @@ void Axis::init() {
 
     NVIC_DisableIRQ(TIMX_IRQn);
     NVIC_ClearPendingIRQ(TIMX_IRQn);
+
+#ifdef QEP_MOCKUP
+    qep = 0;
+#endif
 }
 
 //NOTE: critical
 void Axis::update() {
     Data* D=data_curr;
+
+#ifdef QEP_MOCKUP
+    switch (D->dir) {
+        case PLUS : ++qep; break;
+        case MINUS: --qep; break;
+    }
+#endif
+
     if (--D->rem_Npulse != 0) {
         D->s_Npulse += D->l_Npulse;
         if (D->s_Npulse >= D->total_Npulse) {
@@ -111,6 +129,11 @@ static Axis axis[N_axis_count] = {
     {TIM4, TIM4_IRQn},
     {TIM8, TIM8_CC_IRQn},
 };
+
+#ifdef QEP_MOCKUP
+extern uint16_t volatile * const qep_x = &(axis[0].qep);
+extern uint16_t volatile * const qep_y = &(axis[1].qep);
+#endif
 
 void TIM4_IRQHandler() {
     axis[0].update();
