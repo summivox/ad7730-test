@@ -88,8 +88,8 @@ ArcSeg::ArcSeg(float x1, float y1, float x2, float y2,
     float k2  = (r_4 - k1)/k1;
     float k3; arm_sqrt_f32(k2, &k3); k3 *= sign;
 
-    float cx_ =  k2*y1_;
-    float cy_ = -k2*x1_;
+    float cx_ =  k3*y1_;
+    float cy_ = -k3*x1_;
 
     cx  = cx_ + (x1 + x2)*.5;
     cy  = cy_ + (y1 + y2)*.5;
