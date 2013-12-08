@@ -5,8 +5,11 @@ using namespace std;
 #include "seg.hpp"
 
 #include "conf.hpp"
-#include "vel_gen.hpp"
+
 #include "drive.hpp"
+#include "laser.hpp"
+
+#include "vel_gen.hpp"
 
 
 static const float TWO_PI = 2*PI;
@@ -25,14 +28,22 @@ MoveSeg::MoveSeg(float x1, float y1, float x2, float y2)
 void MoveSeg::exec(float v1, float v2, float v3) {
     printf("<<< M(%8.3f, %8.3f)\r\n", x2, y2); //DEBUG
 
-    os_dly_wait(100);
-    //TODO: shut down laser
-    float x = round((x2 - x1)*Lmm_Lpulse);
-    float y = round((y2 - y1)*Lmm_Lpulse);
-    float t = max(x, y) / V_move_max;
-    drive_push(t, x, y);
-    //TODO: resume laser
+    bool laser_before = laser_is_on;
+    if (laser_before) {
+        os_dly_wait(100); //TODO: wait time based on current speed
+        laser_off();
+    }
+
+    float x = (x2 - x1);
+    float y = (y2 - y1);
+    float t = max(fabs(x), fabs(y)) / V_move_max;
+    int xn = round(x*Lmm_Lpulse);
+    int yn = round(y*Lmm_Lpulse);
+    int tn = round(CONV(t, Ts, Tstep));
+    drive_push(tn, xn, yn);
+
     os_dly_wait(ceil(move_stop_Tms));
+    if (laser_before) laser_on();
 }
 
 

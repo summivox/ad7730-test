@@ -308,6 +308,10 @@ void drive_stop() {
 }
 
 bool drive_push(U32 dTstep, I32 dx_Npulse, I32 dy_Npulse, U16 timeout) {
+    //validate
+    if (dTstep == 0 ||
+        (dx_Npulse == 0 && dy_Npulse == 0)) return false;
+
     //allocate
     DriveCmd* cmd = drive_cmd_pool.allocate();
     if (cmd == NULL) return false;

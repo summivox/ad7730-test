@@ -11,6 +11,7 @@ using namespace std;
 $emit_impl(parser, Seg*) {
 
     //shorthand macros: all self-descriptive
+#define STOP() $yield(NULL)
 #define BREAK_IF_EOF() if (in.eof()) break
 #define SKIP_UNTIL(cond) while (!in.eof() && (cond)) in.get()
 #define FF() \
@@ -21,7 +22,7 @@ $emit_impl(parser, Seg*) {
 #define INPUT(param) do { \
     FF(); \
     in >> param; \
-    if (!in.good()) $yield(NULL); \
+    if (in.fail()) STOP(); \
 } while (false)
 #define CAN_CHAIN (!isalpha(in.peek()))
 #define HANDLE_REL() do { \
@@ -41,7 +42,7 @@ $emit_impl(parser, Seg*) {
 
     while (!in.eof()) {
         FF();
-        if(!isalpha(in.peek())) $yield(NULL); //expected: command
+        if(!isalpha(in.peek())) STOP(); //expected: command
         cmd = in.get();
         is_rel = islower(cmd);
         cmd = toupper(cmd);
@@ -114,8 +115,8 @@ $emit_impl(parser, Seg*) {
                 FF();
             } while (CAN_CHAIN);
         } else {
-            printf("UNRECOGNIZED: %c\n", cmd);
-            $yield(NULL);
+            //printf("UNRECOGNIZED: %c\n", cmd); //DEBUG
+            STOP();
         }
     }
 
