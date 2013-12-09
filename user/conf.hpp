@@ -29,14 +29,14 @@ static const U32 min_period_Tclk = 300; //min period (in ticks) <=> max pulse fr
 ////////////
 // machine-specific & physical
 
-static const int Lmm_Lpulse = 64;
+static const int Lmm_Lpulse = 128;
 
 static const float V_feed_start = 5;
-static const float V_feed_max   = 50;
-static const float V_move_max   = 100;
-static const float Acc_line_max = 200;
-static const float Acc_arc_max  = 100;
-static const float Acc_move_max = 400;
+static const float V_feed_max   = 40;
+static const float V_move_max   = 50;
+static const float Acc_line_max = 80;
+static const float Acc_arc_max  = 60;
+static const float Acc_move_max = 100;
 
 //near-tangent handling: v = v0 * (1 - (theta/theta0)^2), clipped to vmin
 static const float V_feed_tan   = 25;
@@ -47,8 +47,8 @@ static const float feed_tan_cutoff = CONV(15, Adeg, Arad);
 //  factor = 1/vel0 : larger => more output
 //  gamma correction : larger => more output
 static const int laser_period_Tus = 2000;
-static const float laser_tone_factor = 1/(V_feed_max * 0.7);
-static const float laser_tone_gamma  = 1/1.3;
+static const float laser_tone_factor = 1/(V_feed_max * 0.8);
+static const float laser_tone_gamma  = 1/1.2;
 
 //QEP velocity:
 static const float qep_vel_period_Ts = CONV(float(laser_period_Tus), Tus, Ts); //implemented on same timer
