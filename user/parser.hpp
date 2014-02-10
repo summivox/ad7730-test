@@ -8,9 +8,6 @@
 #include "seg.hpp"
 
 
-//generates linear velocity curve `v1` -> `vm` -> `v3`
-//  acceleration: `a` (constant)
-//  path length: `s`
 $generator(parser) {
     istream& in;
 

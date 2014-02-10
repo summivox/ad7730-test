@@ -15,10 +15,10 @@ $emit_impl(parser, Seg*) {
 #define STOP() $yield(NULL)
 
 #define BREAK_IF_EOF() if (in.eof()) break
-#define SKIP_UNTIL(cond) while (!in.eof() && (cond)) in.get()
+#define SKIP_WHILE(cond) while (!in.eof() && (cond)) in.get()
 #define FF() \
     in >> ws; \
-    SKIP_UNTIL(in.peek() == ','); \
+    SKIP_WHILE(in.peek() == ','); \
     in >> ws; \
     BREAK_IF_EOF()
 #define INPUT(param) do { \
