@@ -24,10 +24,8 @@ void pinout_init(){
 
     ////////////
     // timers
-    //  TIM2: remap 2'b11
     //  TIM4: remap 1'b1
 
-    AFIO->MAPR = (AFIO->MAPR & ~AFIO_MAPR_TIM2_REMAP) | (AFIO_MAPR_TIM2_REMAP_0*3);
     AFIO->MAPR |= AFIO_MAPR_TIM4_REMAP;
 
     //axis x : TIM4(drive), TIM3(encoder)
@@ -36,14 +34,8 @@ void pinout_init(){
     I(I_x_QEP_A);
     I(I_x_QEP_B);
 
-    //axis y : TIM8(drive), TIM5(encoder)
-    P(P_y_PULS);
-    P(P_y_SIGN);
-    I(I_y_QEP_A);
-    I(I_y_QEP_B);
-
-    //laser  : TIM2 remap 2'b01
-    P(P_LASER);
+    //clock : TIM2
+    P(P_CLOCK);
 
 #undef I
 #undef O
