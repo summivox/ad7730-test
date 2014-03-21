@@ -11,23 +11,7 @@ using namespace std;
 #include "math.hpp"
 
 #include "drive.hpp"
-
-
-void clock_init() {
-    RCC_ENR(APB1, TIM2EN) = 1;
-    RCC_RSTR(APB1, TIM2RST) = 1;
-    RCC_RSTR(APB1, TIM2RST) = 0;
-
-    TIM2->PSC = 0;
-    TIM2->ARR = 15 - 1; //4.8 MHz (should have been 4.9152 MHz)
-
-    TIM2->CCMR1 = TIM_CCMR1_OC31E | (TIM_CCMR1_OC1M_0 * 6);
-    TIM2->CCR1 = TIM2->ARR / 2;
-
-    TIM2->EGR = TIM_EGR_UG;
-    TIM2->SR = ~TIM_SR_UIF;
-    TIM2->CR1 |= TIM_CR1_CEN;
-}
+#include "ad7730.hpp"
 
 
 __task void main_task(){
@@ -37,17 +21,23 @@ __task void main_task(){
         "\r\n",
         __DATE__, __TIME__
     );
-    drive_start();
-    clock_init();
-    os_dly_wait(100);
+    os_dly_wait(500);
 
-    string cmd;
+    ad7730_reset();
+    uint8_t status = ad7730_get_status();
+    printf("<<< status: 0x%02X\r\n", status);
+    uint32_t offset = ad7730_get_offset();
+    printf("<<< offset: 0x%06X\r\n", offset);
+
+    //string cmd;
     while (1) {
+        /*
         cin >> cmd;
         if (0) {
         } else if (cmd == "path") {
         } else if (cmd == "feed") {
         }
+        */
     }
 }
 

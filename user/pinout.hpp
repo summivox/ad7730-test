@@ -17,7 +17,17 @@ void pinout_init() AUTORUN;
 #define I_x_QEP_B       PA7
 
 //clock : TIM2
-#define P_CLOCK         PA0
+#define P_CLOCK         PB10
+
+
+////////////
+// comm
+//  SPI2
+
+//SPI2 (AD7730)
+#define P_SPI2_SCK PB13
+#define I_SPI2_MISO PB14
+#define P_SPI2_MOSI PB15
 
 
 #endif//_PINOUT_HPP_

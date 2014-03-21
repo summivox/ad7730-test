@@ -24,8 +24,10 @@ void pinout_init(){
 
     ////////////
     // timers
+    //  TIM2: remap 2'b11
     //  TIM4: remap 1'b1
 
+    AFIO->MAPR = (AFIO->MAPR & ~AFIO_MAPR_TIM2_REMAP) | (AFIO_MAPR_TIM2_REMAP_0*3);
     AFIO->MAPR |= AFIO_MAPR_TIM4_REMAP;
 
     //axis x : TIM4(drive), TIM3(encoder)
@@ -36,6 +38,17 @@ void pinout_init(){
 
     //clock : TIM2
     P(P_CLOCK);
+
+
+    ////////////
+    // comm
+    //  SPI2
+
+    //AD7730 : SPI2
+    P(P_SPI2_SCK);
+    I(I_SPI2_MISO);
+    P(P_SPI2_MOSI);
+
 
 #undef I
 #undef O
