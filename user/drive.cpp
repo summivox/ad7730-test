@@ -127,7 +127,6 @@ void Axis::update() {
 
 static Axis axis[N_axis_count] = {
     {TIM4, TIM4_IRQn},
-    {TIM8, TIM8_CC_IRQn},
 };
 
 #ifdef QEP_MOCKUP

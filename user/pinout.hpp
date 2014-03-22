@@ -24,10 +24,15 @@ void pinout_init() AUTORUN;
 // comm
 //  SPI2
 
-//SPI2 (AD7730)
+//AD7730 : SPI2
+#define O_SPI2_nSS PB12
 #define P_SPI2_SCK PB13
 #define I_SPI2_MISO PB14
 #define P_SPI2_MOSI PB15
+
+#define E_AD7730_nRDY PD8
+#define E_AD7730_nRDY_PORT 'D'
+#define E_AD7730_nRDY_EXTI Exti<8>
 
 
 #endif//_PINOUT_HPP_
