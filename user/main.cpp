@@ -28,18 +28,16 @@ __task void main_task(){
     os_dly_wait(1000);
     ad7730_get();
 
+    printf("\r\n");
+    
+    //power-on register check
     printf("<<< status: 0x%02X\r\n", ad7730_status.all);
     printf("<<< mode:   0x%04X\r\n", ad7730_mode  .all);
     printf("<<< filter: 0x%06X\r\n", ad7730_filter.all);
 
     printf("\r\n");
 
-    printf("### calib: external zero..."); fflush(stdout);
-    ad7730_calib(ad7730_mode_t::EXT0);
-    printf("done.\r\n");
-    ad7730_offset.get();
-    printf("           offset: 0x%06X\r\n", ad7730_offset.all);
-
+    //internal full scale calib at 80 mV range (see datasheet)
     printf("### calib: internal full..."); fflush(stdout);
     ad7730_calib(ad7730_mode_t::INT1);
     printf("done.\r\n");
@@ -48,12 +46,27 @@ __task void main_task(){
 
     printf("\r\n");
 
+    //set range and throughput
     ad7730_mode.fields.range = 0; //10 mV
     ad7730_mode.fields.wl = 0; //16 bit
     ad7730_mode.set();
 
     ad7730_filter.fields.sf = 100; // 4.8 MHz / (16 * 3 * 100) = 1 kSPS
     ad7730_filter.set();
+
+    //check registers
+    printf("<<< status: 0x%02X\r\n", ad7730_status.all);
+    printf("<<< mode:   0x%04X\r\n", ad7730_mode  .all);
+    printf("<<< filter: 0x%06X\r\n", ad7730_filter.all);
+
+    printf("\r\n");
+
+    //external zero scale calib
+    printf("### calib: external zero..."); fflush(stdout);
+    ad7730_calib(ad7730_mode_t::EXT0);
+    printf("done.\r\n");
+    ad7730_offset.get();
+    printf("           offset: 0x%06X\r\n", ad7730_offset.all);
 
     printf("\r\n");
 
