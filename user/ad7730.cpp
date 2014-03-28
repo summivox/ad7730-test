@@ -9,7 +9,7 @@ using namespace std;
 
 ////////////
 // clock output (temporary -- should use crystal)
-
+/*
 static void clock_init() AUTORUN;
 static void clock_init() {
     RCC_ENR(APB1, TIM2EN) = 1;
@@ -28,6 +28,7 @@ static void clock_init() {
     TIM2->CCER = TIM_CCER_CC3E;
     TIM2->CR1 |= TIM_CR1_CEN;
 }
+*/
 
 
 ////////////
