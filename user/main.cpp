@@ -76,8 +76,9 @@ __task void main_task(){
         printf("\r\n### 100ms * 100 :\r\n");
 
         ad7730_read_start();
-        os_itv_set(50);
-        for (int n = 100 ; n --> 0 ; ) {
+        os_itv_set(20);
+        //for (int n = 100 ; n --> 0 ; ) {
+        for (;;) {
             /*
             if (E_AD7730_nRDY == 0) {
                 uint32_t x = ad7730_read();
@@ -85,11 +86,12 @@ __task void main_task(){
             }
             ad7730_status.get();
             */
-            printf("[%3d] %06X\r\n", n, ad7730_data);
+            //printf("[%3d] %06X\r\n", n, ad7730_data);
+            printf("%06X\r\n", ad7730_data);
             os_itv_wait();
         }
-        ad7730_read_stop();
-        os_dly_wait(200);
+        //ad7730_read_stop();
+        //os_dly_wait(200);
     }
 }
 
