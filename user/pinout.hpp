@@ -17,7 +17,7 @@ void pinout_init() AUTORUN;
 #define I_x_QEP_B       PA7
 
 //clock : TIM2
-#define P_CLOCK         PB10
+//#define P_CLOCK         PB10
 
 
 ////////////

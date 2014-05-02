@@ -60,7 +60,7 @@ void pinout_init(){
     I(I_x_QEP_B);
 
     //clock : TIM2
-    P(P_CLOCK);
+    //P(P_CLOCK);
 
 
     ////////////
