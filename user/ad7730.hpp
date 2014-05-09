@@ -105,14 +105,16 @@ void ad7730_init() AUTORUN;
 
 void ad7730_reset();
 void ad7730_get();
-uint32_t ad7730_read();
 void ad7730_calib(ad7730_mode_t::md_t md);
 
 
 ////////////
-// continuous transfer
+// data transfer
+
+uint32_t ad7730_read_oneshot();
 
 void ad7730_read_start();
+//uint32_t ad7730_read_cont();
 void ad7730_read_stop();
 
 

@@ -51,9 +51,7 @@ struct Axis {
     Data * volatile data_curr;
     Data * volatile data_next;
 
-#ifdef QEP_MOCKUP
-    uint16_t volatile qep;
-#endif
+    int32_t volatile pos_Npulse; //current relative postition in pulses
 
     void init();
     //NOTE: Won't work when running from RAM. Cause unknown.
@@ -83,21 +81,17 @@ void Axis::init() {
     NVIC_DisableIRQ(TIMX_IRQn);
     NVIC_ClearPendingIRQ(TIMX_IRQn);
 
-#ifdef QEP_MOCKUP
-    qep = 0;
-#endif
+    pos_Npulse = 0;
 }
 
 //NOTE: critical
 void Axis::update() {
     Data* D=data_curr;
 
-#ifdef QEP_MOCKUP
     switch (D->dir) {
-        case PLUS : ++qep; break;
-        case MINUS: --qep; break;
+        case PLUS : ++pos_Npulse; break;
+        case MINUS: --pos_Npulse; break;
     }
-#endif
 
     if (--D->rem_Npulse != 0) {
         D->s_Npulse += D->l_Npulse;
@@ -129,20 +123,10 @@ static Axis axis[N_axis_count] = {
     {TIM4, TIM4_IRQn},
 };
 
-#ifdef QEP_MOCKUP
-extern uint16_t volatile * const qep_x = &(axis[0].qep);
-extern uint16_t volatile * const qep_y = &(axis[1].qep);
-#endif
-
 void TIM4_IRQHandler() {
     axis[0].update();
     TIM4->SR = ~TIM_SR_CC1IF;
 }
-void TIM8_CC_IRQHandler() {
-    axis[1].update();
-    TIM8->SR = ~TIM_SR_CC1IF;
-}
-
 
 //when command FIFO gets empty, generate "idle" commands(dNpulse[]==0) instead
 static DriveCmd cmd_idle = {1, {0}};

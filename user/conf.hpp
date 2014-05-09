@@ -12,28 +12,40 @@
 ////////////
 // buffer size
 
-static const int N_drive_cmd_max = 20; //drive command
+
+////////////
+//stepper driver
+
+static const uint32_t pulse_width_min_Tclk = 400;
+static const uint32_t period_min_Tclk = 800; //min period (in ticks) <=> max pulse frequency
+static const uint32_t period_max_Tclk = 1<<24; //max period (in ticks)
+
+static const int Lpulse_Lstep = 1<<6; //stepper driver microsteps
+static const int Lstep_Lrev = 200;
+static const int Lmil_Lrev = 12;
+static const float Lpulse_Lmil = 1. * Lpulse_Lstep * Lstep_Lrev / Lmil_Lrev;
+
+static const int stepper_speed_max_Vmil = 60;
+
+static const int stepper_travel_Lmil = 400;
+static const uint32_t stepper_travel_Lpulse = stepper_travel_Lmil * Lpulse_Lmil;
+
+//home switch marks: -1 => lo, +1 => hi
+static const int stepper_home_dir = +1;
 
 
 ////////////
-// axis output
+//ADCs
 
-static const int N_axis_count = 1;
-static const U32 min_pulse_width_Tclk = 50; //minimal pulse width
-static const U32 min_period_Tclk = 300; //min period (in ticks) <=> max pulse frequency
-
-#define FOR_EACH_AXIS(N_axis) for (int N_axis = N_axis_count ; N_axis --> 0 ; )
+static const int adc_sample_rate = 400;
+static const int ad7730_clk = 4915200;
 
 
 ////////////
-// machine-specific & physical
+//force sensor (Futek LSB200)
 
-static const int Lmm_Lpulse = 128;
-
-//QEP velocity:
-static const float qep_vel_period_Ts = CONV(2000.0, Tus, Ts);
-static const float qep_vel_tau_Ts = CONV(2.0, Tms, Ts); //smoothing time constant
-static const int qep_vel_zero_Npulse = 0.1*Lmm_Lpulse; //"near-zero" thershold
-
+static const float force_FS_analog = 0.6781; // (mV/V)
+static const float force_FS_digital = force_FS_analog * 5 / 10; // (mV/V) * (V) / (mV)
+static const float force_FS_Lmil = 4; //deflection at FS
 
 #endif//_CONF_HPP_

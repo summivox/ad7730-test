@@ -35,10 +35,14 @@ static const units_time Tstep = 36000 * Tclk;
 ////////////
 // length
 
-typedef uint32_t units_len;
+typedef float units_len;
 
-static const units_len Lmm = 1ul;
+static const units_len Lum = 1.0;
+static const units_len Lmm = 1000 * Lum;
 static const units_len Lm = 1000 * Lmm;
+
+static const units_len Lmil = 25.4 * Lum;
+static const units_len Linch = 1000 * Lmil;
 
 
 ////////////
