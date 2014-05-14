@@ -4,7 +4,7 @@ using namespace std;
 
 #include "dac_ramp.hpp"
 
-#include <assert.h>
+#include <stdio.h>
 
 #include "conf.hpp"
 #include "pinout.hpp"
@@ -33,15 +33,19 @@ inline void dac_ramp_set(uint16_t val) {
 
 static uint16_t limit;
 static int period_Tms;
+static const float k = 3.3/4095; //DEBUG
 
 static OS_TID dac_ramp_tid;
 static void __task dac_ramp_task() {
+    printf("%% start\r\n"); //DEBUG
     os_itv_set(period_Tms);
     while (dac_ramp_running && DAC->DHR12R1 < limit) {
         ++DAC->DHR12R1;
         DAC->SWTRIGR = DAC_SWTRIGR_SWTRIG1;
+        printf("%1.4f\r\n", DAC->DHR12R1 * k); //DEBUG
         os_itv_wait();
     }
+    printf("%% stop\r\n"); //DEBUG
     os_tsk_delete_self();
 }
 

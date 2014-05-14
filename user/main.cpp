@@ -13,6 +13,7 @@ using namespace std;
 
 #include "stepper.hpp"
 #include "adc.hpp"
+#include "dac_ramp.hpp"
 
 
 void adc_sample_handler() {
@@ -28,10 +29,14 @@ __task void main_task(){
     );
     os_dly_wait(1000);
 
-    printf("### AFIO->MAPR == 0x%08X\r\n", AFIO->MAPR);
-    
+    //printf("### AFIO->MAPR == 0x%08X\r\n", AFIO->MAPR);
+
+    /*
     printf("### stepper_home\r\n");
     stepper_home(5, 3);
+    */
+
+    dac_ramp_start(256, 2048, 300*1000);
 
     /*
     adc_init();
@@ -49,6 +54,7 @@ __task void main_task(){
     */
 
     while (1) {
+        os_dly_wait(1000);
     }
 }
 

@@ -80,6 +80,10 @@ void pinout_init(){
     // DAC
     //  Ch1 : pneumatic regulator
 
+    RCC_ENR(APB1, DACEN) = 1;
+    RCC_RSTR(APB1, DACRST) = 1;
+    RCC_RSTR(APB1, DACRST) = 0;
+
     A_DAC1.conf(GPIO_ANALOG);
     A_DAC2.conf(GPIO_ANALOG);
 
