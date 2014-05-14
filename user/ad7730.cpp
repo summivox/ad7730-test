@@ -16,7 +16,7 @@ enum SPI_CONF {
         SPI_CR1_CPHA    * 1 | //trailing edge
         SPI_CR1_CPOL    * 0 | //idle low, active high
         SPI_CR1_MSTR    * 1 |
-        SPI_CR1_BR_0    * 3 | //36 MHz / 2^4 = 2.25 MHz
+        SPI_CR1_BR_0    * 4 | //36 MHz / 2^(4+1) = 1.125 MHz
         SPI_CR1_SPE     * 1 |
         SPI_CR1_SSI     * 1 |
         SPI_CR1_SSM     * 1 ,
