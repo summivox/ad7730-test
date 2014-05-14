@@ -420,7 +420,7 @@
             <File>
               <FileName>stdafx.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>.\user\stdafx.cpp</FilePath>
+              <FilePath>.\system\stdafx.cpp</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -465,7 +465,7 @@
             <File>
               <FileName>stdafx.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\user\stdafx.h</FilePath>
+              <FilePath>.\system\stdafx.h</FilePath>
             </File>
           </Files>
         </Group>
