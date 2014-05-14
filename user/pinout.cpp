@@ -77,6 +77,14 @@ void pinout_init(){
 
 
     ////////////
+    // DAC
+    //  Ch1 : pneumatic regulator
+
+    A_DAC1.conf(GPIO_ANALOG);
+    A_DAC2.conf(GPIO_ANALOG);
+
+
+    ////////////
     // external interrupts
     NVIC_EnableIRQ(EXTI9_5_IRQn);
     NVIC_EnableIRQ(EXTI15_10_IRQn);

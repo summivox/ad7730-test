@@ -29,6 +29,15 @@ void pinout_init() AUTORUN;
 
 
 ////////////
+// DAC
+//  Ch1 : pneumatic regulator
+//  Ch2 : reserved
+
+#define A_DAC1 PA4
+#define A_DAC2 PA5
+
+
+////////////
 // timers
 //  TIM4: remap 1'b1
 
