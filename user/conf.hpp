@@ -8,13 +8,23 @@
 ////////////
 // debug flags
 
+#define ADC_ENABLED false
+#define STEPPER_ENABLED false
+#define DAC_RAMP_PRINT true
+
 
 ////////////
 // buffer size
 
 
 ////////////
-//stepper driver
+// pneumatic regulator
+
+static const float reg_FS_Pkpa = 33;
+
+
+////////////
+// stepper driver
 
 static const uint32_t pulse_width_min_Tclk = 400;
 static const uint32_t period_min_Tclk = 800; //min period (in ticks) <=> max pulse frequency
@@ -35,14 +45,14 @@ static const int stepper_home_dir = +1;
 
 
 ////////////
-//ADCs
+// ADCs
 
-static const int adc_sample_rate = 400;
+static const int adc_sample_rate = 127;
 static const int ad7730_clk = 4915200;
 
 
 ////////////
-//force sensor (Futek LSB200)
+// force sensor (Futek LSB200)
 
 static const float force_FS_analog = 0.6781; // (mV/V)
 static const float force_FS_digital = force_FS_analog * 5 / 10; // (mV/V) * (V) / (mV)

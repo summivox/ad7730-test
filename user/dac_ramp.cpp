@@ -11,6 +11,7 @@ using namespace std;
 
 
 bool volatile dac_ramp_running;
+uint32_t volatile * dac_ramp_data;
 
 void dac_ramp_init() {
     DAC->CR = DAC_CR_EN1
@@ -25,32 +26,30 @@ void dac_ramp_init() {
     DAC->SWTRIGR = DAC_SWTRIGR_SWTRIG1
                  | DAC_SWTRIGR_SWTRIG2
                  ;
-}
 
-inline void dac_ramp_set(uint16_t val) {
-    DAC->DHR12R1 = val;
+    dac_ramp_data = &(DAC->DHR12R1);
 }
 
 static uint16_t limit;
 static int period_Tms;
-static const float k = 3.3/4095; //DEBUG
 
 static OS_TID dac_ramp_tid;
 static void __task dac_ramp_task() {
-    printf("%% start\r\n"); //DEBUG
     os_itv_set(period_Tms);
-    while (dac_ramp_running && DAC->DHR12R1 < limit) {
-        ++DAC->DHR12R1;
+    while (dac_ramp_running && *dac_ramp_data < limit) {
+        ++*dac_ramp_data;
         DAC->SWTRIGR = DAC_SWTRIGR_SWTRIG1;
-        printf("%1.4f\r\n", DAC->DHR12R1 * k); //DEBUG
+#if DAC_RAMP_PRINT
+        printf("%2.3f\r\n", *dac_ramp_data * (reg_FS_Pkpa/4095));
+#endif//DAC_RAMP_PRINT
         os_itv_wait();
     }
-    printf("%% stop\r\n"); //DEBUG
+    dac_ramp_running = false;
     os_tsk_delete_self();
 }
 
 void dac_ramp_start(uint16_t start, uint16_t stop, uint32_t Tms) {
-    DAC->DHR12R1 = start;
+    *dac_ramp_data = start;
     limit = stop;
     period_Tms = Tms / (stop - start);
     if (period_Tms < 1) period_Tms = 1;

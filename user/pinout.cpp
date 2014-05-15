@@ -73,7 +73,7 @@ void pinout_init(){
     ////////////
     // digital I/O
 
-    O(O_VALVE);
+    O(O_VALVE); O_VALVE = 0;
 
 
     ////////////
