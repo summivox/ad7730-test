@@ -25,21 +25,19 @@ void pinout_init() AUTORUN;
 ////////////
 // digital I/O
 
-#define O_VALVE PA6 //valve: 1 => pressure, 0 => atmosphere
+#define O_VALVE PC5 //valve: 1 => pressure, 0 => atmosphere
 
 
 ////////////
 // DAC
 //  Ch1 : pneumatic regulator
-//  Ch2 : reserved
 
 #define A_DAC1 PA4
-#define A_DAC2 PA5
 
 
 ////////////
 // timers
-//  TIM4: remap 1'b1
+//  TIM4 : remap 1'b1
 
 //stepper : TIM4
 #define P_PULS        PD12
@@ -61,11 +59,11 @@ void pinout_init() AUTORUN;
 //AD7686 : SPI1
 #define SPI_AD7686 SPI1
 
-#define O_AD7686_CNV PD7
+#define O_AD7686_CNV PC4
 
-#define P_SPI1_SCK PB3
-#define I_SPI1_MISO PB4
-#define P_SPI1_MOSI PB5
+#define P_SPI1_SCK PA5
+#define I_SPI1_MISO PA6
+#define P_SPI1_MOSI PA7
 
 //AD7730 : SPI2
 #define SPI_AD7730 SPI2

@@ -32,8 +32,8 @@ void adc_init() {
     ad7730_filter.set();
 
     //external zero scale calib
-    ad7730_calib(ad7730_mode_t::EXT0);
-    ad7730_offset.get();
+    //ad7730_calib(ad7730_mode_t::EXT0);
+    //ad7730_offset.get();
 }
 
 static bool adc_on = false;

@@ -32,7 +32,6 @@ void EXTI15_10_IRQHandler() {
 // init
 
 void pinout_init(){
-
     //switch on all GPIOs
     PA::enable();
     PB::enable();
@@ -42,23 +41,13 @@ void pinout_init(){
     PF::enable();
     //PG::enable();
 
+
 #define I(pin) pin.conf(GPIO_IN_FLOATING)
 #define ID(pin, idle) do {pin = idle; pin.conf(GPIO_IN_PULL);} while (0)
 #define O(pin) pin.conf(GPIO_OUT_PP)
 #define OD(pin) pin.conf(GPIO_OUT_OD)
 #define P(pin) pin.conf(GPIO_AF_PP)
 #define PD(pin) pin.conf(GPIO_AF_OD)
-
-
-    ////////////
-    // JTAG: SWD only (3'b010)
-    // FIXME: silicon bug?
-
-    AFIO->MAPR = (AFIO->MAPR & (~AFIO_MAPR_SWJ_CFG)) | (AFIO_MAPR_SWJ_CFG_0 * 1);
-    //AFIO->MAPR = (AFIO->MAPR & (~AFIO_MAPR_SWJ_CFG)) | (AFIO_MAPR_SWJ_CFG_0 * 2);
-    if (AFIO->MAPR & AFIO_MAPR_SWJ_CFG != (AFIO_MAPR_SWJ_CFG_0 * 2)) {
-        while (1);
-    }
 
 
     ////////////
@@ -85,7 +74,6 @@ void pinout_init(){
     RCC_RSTR(APB1, DACRST) = 0;
 
     A_DAC1.conf(GPIO_ANALOG);
-    A_DAC2.conf(GPIO_ANALOG);
 
 
     ////////////
@@ -95,7 +83,7 @@ void pinout_init(){
 
     ////////////
     // timers
-    //  TIM4: remap 1'b1
+    //  TIM4 : remap 1'b1
 
     AFIO->MAPR |= AFIO_MAPR_TIM4_REMAP;
 
@@ -109,7 +97,7 @@ void pinout_init(){
 
     ////////////
     // comm
-    //  SPI1
+    //  SPI1 : remap 1'b1
     //  SPI2
     //  USART2 (CTS/RTS)
     //  USART3
@@ -123,7 +111,7 @@ void pinout_init(){
 
     P(P_SPI1_SCK);
     I(I_SPI1_MISO);
-    //P(P_SPI1_MOSI);
+    P(P_SPI1_MOSI);
 
     //AD7730 : SPI2
     RCC_ENR(APB1, SPI2EN) = 1;
@@ -158,4 +146,7 @@ void pinout_init(){
 #undef OD
 #undef P
 #undef PD
+
+    // JTAG set to SWD only (3'b010)
+    AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_1;
 }

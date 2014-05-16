@@ -16,6 +16,9 @@ using namespace std;
 #include "dac_ramp.hpp"
 
 
+#include "spi.hpp"
+
+
 OS_TID main_tid;
 __task void main_task(){
     main_tid = os_tsk_self();
@@ -26,6 +29,10 @@ __task void main_task(){
         __DATE__, __TIME__
     );
     os_dly_wait(2000);
+
+    //DEBUG: set DAC
+    *dac_ramp_data = 10.0/reg_FS_Pkpa*4095;
+
 
 #if ADC_ENABLED
     printf("### initializing ADCs..."); fflush(stdout);
@@ -61,7 +68,11 @@ __task void main_task(){
     );
 
     O_VALVE = 1;
-    dac_ramp_start(0, (max_Pkpa/reg_FS_Pkpa)*4095, ramp_Ts*1000);
+    dac_ramp_start
+        ( (reg_min_Pkpa/reg_FS_Pkpa)*4095
+        , (max_Pkpa/reg_FS_Pkpa)*4095
+        , ramp_Ts*1000
+        );
 #if ADC_ENABLED
     adc_start();
 #endif//ADC_ENABLED
@@ -69,9 +80,11 @@ __task void main_task(){
     while (dac_ramp_running) {
         os_evt_wait_or(1, FOREVER);
 #if ADC_ENABLED
+        /*
         if (ad7730_data <= (1 - force_FS_digital) * 0x8000) {
             break;
         }
+        */
 #endif//ADC_ENABLED
         printf("%04x,%04x\r\n", ad7730_data, ad7686_data);
     }

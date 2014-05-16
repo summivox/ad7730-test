@@ -8,7 +8,7 @@
 ////////////
 // debug flags
 
-#define ADC_ENABLED false
+#define ADC_ENABLED true
 #define STEPPER_ENABLED false
 #define DAC_RAMP_PRINT true
 
@@ -20,6 +20,7 @@
 ////////////
 // pneumatic regulator
 
+static const float reg_min_Pkpa = 1;
 static const float reg_FS_Pkpa = 33;
 
 
@@ -47,7 +48,7 @@ static const int stepper_home_dir = +1;
 ////////////
 // ADCs
 
-static const int adc_sample_rate = 127;
+static const int adc_sample_rate = 192;
 static const int ad7730_clk = 4915200;
 
 

@@ -16,16 +16,11 @@ uint32_t volatile * dac_ramp_data;
 void dac_ramp_init() {
     DAC->CR = DAC_CR_EN1
             | DAC_CR_TSEL1_0 * 7 //3'b111 software trigger
-            | DAC_CR_EN2
-            | DAC_CR_TSEL2_0 * 7 //3'b111 software trigger             ;
             ;
 
     //set initial value to 0
     DAC->DHR12R1 = 0;
-    DAC->DHR12R2 = 0;
-    DAC->SWTRIGR = DAC_SWTRIGR_SWTRIG1
-                 | DAC_SWTRIGR_SWTRIG2
-                 ;
+    DAC->SWTRIGR = DAC_SWTRIGR_SWTRIG1;
 
     dac_ramp_data = &(DAC->DHR12R1);
 }
