@@ -114,6 +114,7 @@ enum homing_state_t {
     HOMING_INACTIVE = 0,
     HOMING_COARSE = 1,
     HOMING_BACKOFF = 2,
+    HOMING_FINE = 3,
 };
 static homing_state_t volatile homing_state;
 
@@ -124,7 +125,14 @@ enum homing_flag_t{
 static OS_TID stepper_home_tid;
 static OS_SEM stepper_home_sem;
 static __task void stepper_home_task() {
-    //if not home yet, rapidly move towards home
+
+    //debounce home signal
+#define EXPECT(x) do {                      \
+    os_dly_wait(10);                        \
+    while (E_nHOME != x) os_dly_wait(1);    \
+} while (0)
+
+    //if not home yet, move towards home
     if (E_nHOME == 1) {
         O_D(1, 0, 0, 0);
         homing_state = HOMING_COARSE;
@@ -134,16 +142,15 @@ static __task void stepper_home_task() {
         stepper_run(stepper_home_dir * homing_coarse_Vmil, true);
         os_evt_wait_or(HOMING_FLAG_SWITCH, FOREVER);
         os_evt_clr(HOMING_FLAG_SWITCH, os_tsk_self());
+        E_nHOME_EXTI::disable();
+        O_D(0, 0, 0, 0);
 
-        //debounce
-        O_D(0, 1, 0, 0);
-        os_dly_wait(10);
-        while (E_nHOME != 0) os_dly_wait(1);
+        EXPECT(0);
         os_dly_wait(100);
     }
 
-    //now at home, back off slowly until home switch off
-    O_D(0, 0, 1, 0);
+    //now at home, back off until out of home (clear hysterisis)
+    O_D(0, 1, 0, 0);
     homing_state = HOMING_BACKOFF;
     E_nHOME_EXTI::set_rising(true);
     E_nHOME_EXTI::set_falling(false);
@@ -151,17 +158,29 @@ static __task void stepper_home_task() {
     stepper_run(-stepper_home_dir * homing_fine_Vmil, true);
     os_evt_wait_or(HOMING_FLAG_SWITCH, FOREVER);
     os_evt_clr(HOMING_FLAG_SWITCH, os_tsk_self());
+    E_nHOME_EXTI::disable();
+    O_D(0, 0, 0, 0);
 
-    //debounce
-    O_D(0, 0, 0, 1);
-    os_dly_wait(10);
-    while (E_nHOME != 1) os_dly_wait(1);
+    EXPECT(1);
+    os_dly_wait(100);
+
+    //with hysterisis cleared, finally move slowly towards home
+    O_D(0, 0, 1, 0);
+    homing_state = HOMING_FINE;
+    E_nHOME_EXTI::set_rising(false);
+    E_nHOME_EXTI::set_falling(true);
+    E_nHOME_EXTI::enable();
+    stepper_run(stepper_home_dir * homing_fine_Vmil, true);
+    os_evt_wait_or(HOMING_FLAG_SWITCH, FOREVER);
+    os_evt_clr(HOMING_FLAG_SWITCH, os_tsk_self());
+    E_nHOME_EXTI::disable();
+    O_D(0, 0, 0, 0);
+
+    EXPECT(0);
     os_dly_wait(100);
 
     //finish up
-    O_D(0, 0, 0, 0);
     homing_state = HOMING_INACTIVE;
-    E_nHOME_EXTI::disable();
     stepper_pos_Lpulse = 0;
 
     //set default limits
