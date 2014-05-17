@@ -3,6 +3,7 @@
 
 #include "conf.hpp"
 
+static const uint32_t ad7730_blank = 0x80808080u; //placeholder sent when reading
 
 extern uint32_t ad7730_data;
 

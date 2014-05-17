@@ -44,9 +44,9 @@ void pinout_init() AUTORUN;
 #define O_SIGN        PD13
 
 //home sensor (active low, pullup)
-#define E_nHOME       PD11
+#define E_nHOME       PD14
 #define E_nHOME_PORT  'D'
-#define E_nHOME_EXTI  Exti<11>
+#define E_nHOME_EXTI  Exti<14>
 
 
 ////////////

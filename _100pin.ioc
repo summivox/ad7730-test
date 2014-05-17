@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Fri May 16 17:44:05 CST 2014
+#Sat May 17 18:25:39 CST 2014
 File.Version=1
 KeepUserPlacement=true
 Mcu.Family=STM32F1
@@ -25,10 +25,10 @@ Mcu.Pin15=PB13
 Mcu.Pin16=PB14
 Mcu.Pin17=PB15
 Mcu.Pin18=PD8
-Mcu.Pin19=PD11
+Mcu.Pin19=PD12
 Mcu.Pin2=PA0-WKUP
-Mcu.Pin20=PD12
-Mcu.Pin21=PD13
+Mcu.Pin20=PD13
+Mcu.Pin21=PD14
 Mcu.Pin22=PA9
 Mcu.Pin23=PA10
 Mcu.Pin24=PA13
@@ -83,9 +83,9 @@ PC15-OSC32_OUT.Mode=LSE-External-Oscillator
 PC15-OSC32_OUT.Signal=SYS_OSC32_OUT
 PC4.Signal=GPIO_Output
 PC5.Signal=GPIO_Output
-PD11.Signal=GPIO_Input
 PD12.Mode=Encoder-Interface
 PD12.Signal=TIM4_CH1
 PD13.Mode=Encoder-Interface
 PD13.Signal=TIM4_CH2
+PD14.Signal=GPIO_Input
 PD8.Signal=GPIO_Input

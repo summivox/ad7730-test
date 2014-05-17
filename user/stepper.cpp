@@ -72,7 +72,7 @@ void stepper_run(float Vmil, bool blind) {
     TIM4->CR1 = TIM_CR1_ARPE;
     TIM4->CCER = TIM_CCER_CC1E;
     TIM4->CCMR1 = CCMR;
-    TIM4->CCR1 = TIM4->ARR - pulse_width_min_Tclk;
+    TIM4->CCR1 = (TIM4->ARR / 2) + 1;
 
     TIM4->DIER = 0;
     TIM4->EGR = TIM_EGR_UG;
@@ -135,9 +135,11 @@ static __task void stepper_home_task() {
     //if not home yet, move towards home
     if (E_nHOME == 1) {
         O_D(1, 0, 0, 0);
+        printf("    step 1 : move towards home (%+5.2f)\r\n", +stepper_home_dir * homing_coarse_Vmil);
         homing_state = HOMING_COARSE;
         E_nHOME_EXTI::set_rising(false);
         E_nHOME_EXTI::set_falling(true);
+        E_nHOME_EXTI::clear();
         E_nHOME_EXTI::enable();
         stepper_run(stepper_home_dir * homing_coarse_Vmil, true);
         os_evt_wait_or(HOMING_FLAG_SWITCH, FOREVER);
@@ -151,11 +153,13 @@ static __task void stepper_home_task() {
 
     //now at home, back off until out of home (clear hysterisis)
     O_D(0, 1, 0, 0);
+    printf("    step 2 : move out of home (%+5.2f)\r\n", -stepper_home_dir * homing_coarse_Vmil);
     homing_state = HOMING_BACKOFF;
     E_nHOME_EXTI::set_rising(true);
     E_nHOME_EXTI::set_falling(false);
+    E_nHOME_EXTI::clear();
     E_nHOME_EXTI::enable();
-    stepper_run(-stepper_home_dir * homing_fine_Vmil, true);
+    stepper_run(-stepper_home_dir * homing_coarse_Vmil, true);
     os_evt_wait_or(HOMING_FLAG_SWITCH, FOREVER);
     os_evt_clr(HOMING_FLAG_SWITCH, os_tsk_self());
     E_nHOME_EXTI::disable();
@@ -166,9 +170,11 @@ static __task void stepper_home_task() {
 
     //with hysterisis cleared, finally move slowly towards home
     O_D(0, 0, 1, 0);
+    printf("    step 3 : move towards home (%+5.2f)\r\n", +stepper_home_dir * homing_fine_Vmil);
     homing_state = HOMING_FINE;
     E_nHOME_EXTI::set_rising(false);
     E_nHOME_EXTI::set_falling(true);
+    E_nHOME_EXTI::clear();
     E_nHOME_EXTI::enable();
     stepper_run(stepper_home_dir * homing_fine_Vmil, true);
     os_evt_wait_or(HOMING_FLAG_SWITCH, FOREVER);

@@ -37,7 +37,7 @@ void ad7730_init() {
 // registers
 
 enum ad7730_magic {
-    BLANK = 0x80808080u, //placeholder sent when reading
+    BLANK = ad7730_blank, //placeholder sent when reading
     WRITE = 0x00u, //write register
     READ  = 0x10u, //read register
     START = 0x20u, //enter continuous reading mode
@@ -147,6 +147,10 @@ void ad7730_read_start() {
 
     SPI_AD7730->CR1 = 0;
     SPI_AD7730->CR1 = SPI_CONF_16bit;
+
+    O_AD7730_nSS = 0;
+    SPI_send1(SPI2, (uint16_t)BLANK);
+    O_AD7730_nSS = 1;
 
     //wait for data
     //cont = true;
