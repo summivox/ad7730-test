@@ -25,6 +25,13 @@ static const float reg_FS_Pkpa = 33;
 
 
 ////////////
+// 4-20 mA pressure transducer
+
+static const float gage_LRV_Pkpa = 0;
+static const float gage_URV_Pkpa = 20;
+
+
+////////////
 // stepper driver
 
 static const uint32_t pulse_width_min_Tclk = 500;
@@ -55,14 +62,14 @@ static const int ad7730_clk = 4915200;
 ////////////
 // force sensor (Futek LSB200)
 
-static const float force_FS_analog = 0.6781; // (mV/V)
-static const float force_FS_digital = force_FS_analog * 5 / 10; // (mV/V) * (V) / (mV)
+static const float force_FS_out_abs = 0.6781; // (mV/V)
+static const float force_FS_out_rel = force_FS_out_abs * 5 / 10; // (mV/V) * (V) / (mV)
 static const float force_FS_Lmil = 4; //deflection at FS
 
 // all force thresholds relative to force sensor FS
 // + => pull (tension)
 // - => push (compress)
-static const float force_touchdown_thres = -0.02;
+static const float force_touchdown_thres = -0.03;
 static const float force_bailout_thres = -0.8;
 
 
