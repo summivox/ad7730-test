@@ -53,6 +53,10 @@ void adc_stop() {
 
 //synchronize reads from both ADCs, triggered by AD7730 conversion complete
 void E_AD7730_nRDY_IRQHandler() {
+    if (E_AD7730_nRDY != 0) {
+        O_AD7686_CNV = 1;
+        return; //BREAKPOINT HERE -- shouldn't really happen
+    }
     O_AD7686_CNV = 1; //AD7686 read end (conv start)
     O_AD7730_nSS = 0; //AD7730 read start
 

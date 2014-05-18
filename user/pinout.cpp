@@ -15,7 +15,7 @@ using namespace std;
         name##_EXTI::clear();          \
     }
 
-IRQ_DECL(EXTI9_5_IRQn, EXTI9_5_IRQHandler, 3, 1);
+IRQ_DECL(EXTI9_5_IRQn, EXTI9_5_IRQHandler, 0, 1);
 void EXTI9_5_IRQHandler() {
     HOOK(E_AD7730_nRDY);
 }

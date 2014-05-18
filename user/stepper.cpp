@@ -14,8 +14,8 @@ using namespace std;
 bool volatile stepper_running;
 int8_t stepper_dir;
 int32_t volatile stepper_pos_Lpulse;
-int32_t stepper_limit_lo_Lpulse;
-int32_t stepper_limit_hi_Lpulse;
+int32_t stepper_limit_lo_Lpulse = -(1<<18);
+int32_t stepper_limit_hi_Lpulse = +(1<<18);
 
 
 ////////////

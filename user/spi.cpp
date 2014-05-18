@@ -7,12 +7,14 @@ using namespace std;
 
 //8-bit & 16-bit
 uint32_t SPI_send1(SPI_TypeDef* SPI, uint32_t tx) {
+    SPI_WAIT_UNTIL(SPI, TXE, 1);
     SPI->DR = tx;
     SPI_WAIT_UNTIL(SPI, RXNE, 1);
     return SPI->DR;
 }
 uint32_t SPI_send2(SPI_TypeDef* SPI, uint32_t tx) {
     uint32_t rx;
+    SPI_WAIT_UNTIL(SPI, TXE, 1);
 
     if (SPI->CR1 & SPI_CR1_DFF) {
         //16-bit frame
@@ -44,6 +46,7 @@ uint32_t SPI_send2(SPI_TypeDef* SPI, uint32_t tx) {
 //8-bit only
 uint32_t SPI_send3(SPI_TypeDef* SPI, uint32_t tx) {
     uint32_t rx = 0;
+    SPI_WAIT_UNTIL(SPI, TXE, 1);
 
     SPI->DR = (tx >> 16) & 0xffu;
 
@@ -63,6 +66,7 @@ uint32_t SPI_send3(SPI_TypeDef* SPI, uint32_t tx) {
 }
 uint32_t SPI_send4(SPI_TypeDef* SPI, uint32_t tx) {
     uint32_t rx = 0;
+    SPI_WAIT_UNTIL(SPI, TXE, 1);
 
     SPI->DR = (tx >> 24) & 0xffu;
 
@@ -85,6 +89,7 @@ uint32_t SPI_send4(SPI_TypeDef* SPI, uint32_t tx) {
     return rx;
 }
 void SPI_send(SPI_TypeDef* SPI, uint8_t* tx, uint8_t* rx, size_t n) {
+    SPI_WAIT_UNTIL(SPI, TXE, 1);
     SPI->DR = *tx++;
     while (--n > 0) {
         SPI_WAIT_UNTIL(SPI, TXE, 1);

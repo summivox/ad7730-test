@@ -16,7 +16,7 @@ enum SPI_CONF {
         SPI_CR1_CPHA    * 1 | //trailing edge
         SPI_CR1_CPOL    * 0 | //idle low, active high
         SPI_CR1_MSTR    * 1 |
-        SPI_CR1_BR_0    * 5 | //36 MHz / 2^(5+1) = 0.5625 MHz
+        SPI_CR1_BR_0    * 4 | //36 MHz / 2^(4+1) = 1.125 MHz
         SPI_CR1_SPE     * 1 |
         SPI_CR1_SSI     * 1 |
         SPI_CR1_SSM     * 1 ,
@@ -110,6 +110,7 @@ void ad7730_calib(ad7730_mode_t::md_t md) {
     ad7730_mode.fields.md = md;
     ad7730_mode.set();
     while (E_AD7730_nRDY == 1) ;
+    E_AD7730_nRDY_EXTI::clear();
     ad7730_mode.get();
     ad7730_status.get();
 }
