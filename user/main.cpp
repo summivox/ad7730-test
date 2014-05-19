@@ -131,7 +131,7 @@ static void run() {
     dac_ramp_stop();
     *dac_ramp_data = 0;
     */
-    
+
     printf(
         "\r\n"
         "### test end\r\n"
@@ -139,7 +139,7 @@ static void run() {
 }
 
 static OS_TID main_tid;
-static __task void main_task(){
+static __task void main_task() {
     main_tid = os_tsk_self();
     printf(
         "\r\n\r\n"
@@ -147,19 +147,19 @@ static __task void main_task(){
         "\r\n",
         __DATE__, __TIME__
     );
-    os_dly_wait(2000);
+
 
     printf("### initializing ADCs..."); fflush(stdout);
     adc_init();
     adc_start();
     printf("    done\r\n");
 
-    
+
     printf("### CLI\r\n");
 
-    string cmd;
+    string cmd = "\0";
     while (1) {
-        cin >> cmd;
+        //first run: print usage
         if (0) {
         } else if (cmd[0] == 'h') {
             home();
@@ -174,12 +174,6 @@ static __task void main_task(){
                 os_evt_wait_or(1, FOREVER);
                 os_evt_clr(1, os_tsk_self());
                 printf("%04x,%04x\r\n", ad7730_data, ad7686_data);
-                if (ad7730_data > 0x9000 || ad7730_data < 0x7000) {
-                    O_D(0, 0, 0, 1);
-                    adc_stop();
-                    printf("!!! ad7730 corrupt!\r\n");
-                    while (1) /*dead*/;
-                }
             }
             printf("    done\r\n");
         } else if (cmd[0] == 'r') {
@@ -187,21 +181,10 @@ static __task void main_task(){
         } else {
             printf(
                 "### commands:\r\n"
-                "    h(ome), t(ouchdown), c(alib), a(dc), r(un), e(nd)\r\n"
+                "    h(ome), t(ouchdown), c(alib), a(dc), r(un)\r\n"
             );
         }
-    }
-
-    adc_stop();
-
-    printf(
-        "\r\n\r\n"
-        "### END\r\n"
-    );
-
-END:
-    while (1) {
-        os_dly_wait(1);
+        cin >> cmd;
     }
 }
 
