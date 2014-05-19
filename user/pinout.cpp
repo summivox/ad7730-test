@@ -10,12 +10,12 @@ using namespace std;
 
 #define HOOK(name)                     \
     if (name##_EXTI::pending()) {      \
+        name##_EXTI::clear();          \
         void name##_IRQHandler();      \
         name##_IRQHandler();           \
-        name##_EXTI::clear();          \
     }
 
-IRQ_DECL(EXTI9_5_IRQn, EXTI9_5_IRQHandler, 0, 1);
+IRQ_DECL(EXTI9_5_IRQn, EXTI9_5_IRQHandler, 2, 1);
 void EXTI9_5_IRQHandler() {
     HOOK(E_AD7730_nRDY);
 }

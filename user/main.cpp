@@ -138,8 +138,8 @@ static void run() {
     );
 }
 
-OS_TID main_tid;
-__task void main_task(){
+static OS_TID main_tid;
+static __task void main_task(){
     main_tid = os_tsk_self();
     printf(
         "\r\n\r\n"
@@ -206,7 +206,7 @@ END:
 }
 
 void adc_sample_handler() {
-    isr_evt_set(1, main_tid);
+    os_evt_set(1, main_tid);
 }
 
 

@@ -13,6 +13,7 @@ using namespace std;
 //NOTE: AD7686 requires no software setup
 void adc_init() {
     //boot-up
+    //TODO: use hard reset wire
     ad7730_reset();
     os_dly_wait(1000);
     ad7730_get();
@@ -38,14 +39,36 @@ void adc_init() {
 
 static bool adc_on = false;
 
+static OS_TID adc_tid;
+static __task void adc_task() {
+    while (1) {
+        os_evt_wait_or(1, adc_tid);
+        os_evt_clr(adc_tid);
+
+        O_AD7686_CNV = 1; //AD7686 read end (conv start)
+        O_AD7730_nSS = 0; //AD7730 read start
+
+        ad7730_data = SPI_send1(SPI_AD7730, (uint16_t)ad7730_blank);
+
+        O_AD7686_CNV = 0; //AD7686 read start
+        O_AD7730_nSS = 1; //AD7730 read end
+
+        ad7686_data = SPI_send1(SPI_AD7686, 0);
+
+        adc_sample_handler();
+    }
+}
+
 void adc_start() {
     ad7730_read_start();
     O_AD7686_CNV = 0;
     O_AD7730_nSS = 1;
+    adc_tid = os_tsk_create(adc_task, 0x20);
     adc_on = true;
 }
 void adc_stop() {
     adc_on = false;
+    os_tsk_delete(adc_tid);
     O_AD7686_CNV = 0;
     O_AD7730_nSS = 1;
     ad7730_read_stop();
@@ -57,15 +80,5 @@ void E_AD7730_nRDY_IRQHandler() {
         O_AD7686_CNV = 1;
         return; //BREAKPOINT HERE -- shouldn't really happen
     }
-    O_AD7686_CNV = 1; //AD7686 read end (conv start)
-    O_AD7730_nSS = 0; //AD7730 read start
-
-    ad7730_data = SPI_send1(SPI_AD7730, (uint16_t)ad7730_blank);
-
-    O_AD7686_CNV = 0; //AD7686 read start
-    O_AD7730_nSS = 1; //AD7730 read end
-
-    ad7686_data = SPI_send1(SPI_AD7686, 0);
-
-    adc_sample_handler();
+    isr_evt_set(1, adc_tid);
 }
