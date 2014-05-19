@@ -148,7 +148,4 @@ void pinout_init(){
 #undef OD
 #undef P
 #undef PD
-
-    // JTAG set to SWD only (3'b010)
-    AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_1;
 }
