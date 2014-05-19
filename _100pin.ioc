@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-#Sat May 17 18:25:39 CST 2014
+#Mon May 19 19:56:37 CST 2014
 File.Version=1
 KeepUserPlacement=true
 Mcu.Family=STM32F1
@@ -25,14 +25,15 @@ Mcu.Pin15=PB13
 Mcu.Pin16=PB14
 Mcu.Pin17=PB15
 Mcu.Pin18=PD8
-Mcu.Pin19=PD12
+Mcu.Pin19=PD9
 Mcu.Pin2=PA0-WKUP
-Mcu.Pin20=PD13
-Mcu.Pin21=PD14
-Mcu.Pin22=PA9
-Mcu.Pin23=PA10
-Mcu.Pin24=PA13
-Mcu.Pin25=PA14
+Mcu.Pin20=PD12
+Mcu.Pin21=PD13
+Mcu.Pin22=PD14
+Mcu.Pin23=PA9
+Mcu.Pin24=PA10
+Mcu.Pin25=PA13
+Mcu.Pin26=PA14
 Mcu.Pin3=PA1
 Mcu.Pin4=PA2
 Mcu.Pin5=PA3
@@ -40,7 +41,7 @@ Mcu.Pin6=PA4
 Mcu.Pin7=PA5
 Mcu.Pin8=PA6
 Mcu.Pin9=PA7
-Mcu.PinsNb=26
+Mcu.PinsNb=27
 PA0-WKUP.Mode=Hardware-flow-control
 PA0-WKUP.Signal=USART2_CTS
 PA1.Mode=Hardware-flow-control
@@ -89,3 +90,4 @@ PD13.Mode=Encoder-Interface
 PD13.Signal=TIM4_CH2
 PD14.Signal=GPIO_Input
 PD8.Signal=GPIO_Input
+PD9.Signal=GPIO_Output

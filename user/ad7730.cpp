@@ -88,11 +88,17 @@ DEF_REG(test   , SPI_send3, uint32_t);
 // blocking ops
 
 void ad7730_reset() {
+    O_AD7730_nRESET = 0;
+    os_dly_wait(1);
+    O_AD7730_nRESET = 1;
+    os_dly_wait(100);
+    /*
     SPI_AD7730->CR1 = 0;
     SPI_AD7730->CR1 = SPI_CONF_8bit;
     O_AD7730_nSS = 0;
     SPI_send4(SPI2, 0xffffffffu);
     O_AD7730_nSS = 1;
+    */
 }
 
 void ad7730_get() {
@@ -131,7 +137,6 @@ uint32_t ad7730_read_oneshot() {
     return ad7730_data;
 }
 
-//static bool cont = false;
 void ad7730_read_start() {
     //reset mode to continuous conversion
     ad7730_mode.get();
@@ -158,20 +163,6 @@ void ad7730_read_start() {
     E_AD7730_nRDY_EXTI::clear();
     E_AD7730_nRDY_EXTI::enable();
 }
-/*
-uint32_t ad7730_read_cont() {
-    if (!cont) return 0xffffffffu;
-    //parallel to : ad7730_read_oneshot()
-    O_AD7730_nSS = 0;
-    if (ad7730_mode.fields.wl == 1) {
-        ad7730_data = SPI_send3(SPI2, (uint32_t)BLANK); //24 bit
-    } else {
-        ad7730_data = SPI_send2(SPI2, (uint16_t)BLANK); //16 bit
-    }
-    O_AD7730_nSS = 1;
-    return ad7730_data;
-}
-*/
 void ad7730_read_stop() {
     //stop accepting data
     E_AD7730_nRDY_EXTI::disable();

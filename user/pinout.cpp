@@ -129,6 +129,8 @@ void pinout_init(){
     E_AD7730_nRDY_EXTI::set_port(E_AD7730_nRDY_PORT);
     E_AD7730_nRDY_EXTI::set_falling();
 
+    O(O_AD7730_nRESET); O_AD7730_nRESET = 0; //default to reset
+
     //HART modem : USART2
     I(I_USART2_nCTS);
     P(P_USART2_nRTS);

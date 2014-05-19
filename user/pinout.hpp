@@ -78,6 +78,8 @@ void pinout_init() AUTORUN;
 #define E_AD7730_nRDY_PORT 'D'
 #define E_AD7730_nRDY_EXTI Exti<8>
 
+#define O_AD7730_nRESET PD9
+
 //HART modem : USART2
 #define USART_HART USART2
 
