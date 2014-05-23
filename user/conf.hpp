@@ -69,7 +69,7 @@ static const float force_FS_Lmil = 4; //deflection at FS
 // all force thresholds relative to force sensor FS
 // + => pull (tension)
 // - => push (compress)
-static const float force_touchdown_thres = -0.03;
+static const float force_touchdown_thres = -0.02;
 static const float force_bailout_thres = -0.8;
 
 
