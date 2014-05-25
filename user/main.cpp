@@ -19,10 +19,46 @@ using namespace std;
 #include "spi.hpp"
 
 
-//ADC value from relative force
+
+////////////
+// 4-20 mA pressure transducer
+
+static float gage_LRV_Pkpa = 0;
+static float gage_URV_Pkpa = 5;
+static uint16_t gage_LRV_adc = 0x3139;
+static uint16_t gage_URV_adc = 0xf63e;
+static const size_t gage_calib_n = adc_sample_rate * 5;
+
+static float gage_from_ad7686(uint32_t ad7686) {
+    return gage_LRV_Pkpa +
+            (int32_t(ad7686) - gage_LRV_adc)*(gage_URV_Pkpa - gage_LRV_Pkpa)
+                                            /(gage_URV_adc  - gage_LRV_adc);
+}
+
+template <typename T>
+static void adc_dump_n(T* src, T* buf, size_t n) {
+    os_evt_clr(1, os_tsk_self());
+    T* end = buf + n;
+    while (buf != end) {
+        os_evt_wait_or(1, FOREVER);
+        os_evt_clr(1, os_tsk_self());
+        *buf++ = *src;
+    }
+}
+
+//ADC value to/from relative force
 static inline uint32_t ad7730_from_rel(float rel) {
     return (1+force_FS_out_rel*rel) * 0x8000;
 }
+static inline float rel_from_ad7730(uint32_t ad7730) {
+    return (int32_t(ad7730) - 0x8000) / (force_FS_out_rel * float(0x8000));
+}
+
+//absolute force from ADC value
+static inline float force_from_ad7730(uint32_t ad7730) {
+    return rel_from_ad7730(ad7730) * force_FS_Fmn;
+}
+
 
 static void home() {
     printf("### moving probe to home...\r\n");
@@ -52,35 +88,20 @@ static void touchdown() {
     }
 }
 
-static uint16_t gage_LRV_adc = 0x3139; //20140518-1038
-static uint16_t gage_URV_adc = 0xf63d;
-static const size_t gage_calib_n = adc_sample_rate * 1;
-
-template <typename T>
-static void adc_dump_n(T* src, T* buf, size_t n) {
-    os_evt_clr(1, os_tsk_self());
-    T* end = buf + n;
-    while (buf != end) {
-        os_evt_wait_or(1, FOREVER);
-        os_evt_clr(1, os_tsk_self());
-        *buf++ = *src;
-    }
-}
-
 static void calib() {
     uint32_t* buf = new uint32_t[gage_calib_n];
     uint32_t sum;
 
-    printf("### set AO to  4mA (LRV) and press enter..."); fflush(stdout);
-    fgetc(stdin);
+    printf("### set AO to  4mA and enter LRV (kPa)... "); fflush(stdout);
+    scanf("%f", &gage_LRV_Pkpa);
     adc_dump_n(&ad7686_data, buf, gage_calib_n);
     sum = 0;
     for (int i = 0 ; i < gage_calib_n ; ++i) sum += buf[i];
     gage_LRV_adc = uint16_t(sum / gage_calib_n);
     printf("<<< LRV ADC value : 0x%04x\r\n\r\n", gage_LRV_adc);
 
-    printf("### set AO to 20mA (URV) and press enter..."); fflush(stdout);
-    fgetc(stdin);
+    printf("### set AO to 20mA and enter URV (kPa)... "); fflush(stdout);
+    scanf("%f", &gage_URV_Pkpa);
     adc_dump_n(&ad7686_data, buf, gage_calib_n);
     sum = 0;
     for (int i = 0 ; i < gage_calib_n ; ++i) sum += buf[i];
@@ -123,7 +144,9 @@ static void run() {
         if (ad7730_data <= ad7730_from_rel(force_bailout_thres)) {
             break;
         }
-        printf("%04x,%04x\r\n", ad7730_data, ad7686_data);
+        printf("%.4f,%.4f\r\n",
+               -force_from_ad7730(ad7730_data), //compression as positive
+               gage_from_ad7686(ad7686_data));
     }
 
     O_VALVE = 0; //shut off pressure first!
